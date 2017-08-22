@@ -1,0 +1,45 @@
+{
+  "name": "udacity-readable",
+  "version": "1.0.0",
+  "description": "A user-generated content web app built with React, Redux and Typescript, as part of the Udacity React Nanodegree",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samfrances/udacity-readable.git"
+  },
+  "author": "Sam Frances",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samfrances/udacity-readable/issues"
+  },
+  "dependencies": {
+    "@types/core-js": "^0.9.43",
+    "@types/isomorphic-fetch": "0.0.34",
+    "@types/react": "^15.0.30",
+    "@types/react-dom": "^15.5.0",
+    "core-js": "^2.5.0",
+    "isomorphic-fetch": "^2.2.1",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "redux": "^3.7.2"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.4",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "file-loader": "^0.11.2",
+    "source-map-loader": "^0.2.1",
+    "style-loader": "^0.18.2",
+    "ts-loader": "^2.2.0",
+    "tslint": "^5.4.3",
+    "tslint-loader": "^3.5.3",
+    "tslint-react": "^3.0.0",
+    "typescript": "^2.3.4",
+    "url-loader": "^0.5.9",
+    "webpack": "^3.0.0",
+    "webpack-dev-server": "^2.5.0"
+  },
+  "homepage": "https://github.com/samfrances/udacity-readable#readme"
+}
