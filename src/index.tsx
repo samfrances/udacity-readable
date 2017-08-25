@@ -1,23 +1,35 @@
 import "core-js";
-import * as redux from 'redux';
+import * as actions from './actions';
 
-interface MyAction extends redux.Action {
-    type: "hello";
-}
+const act = actions.createPost({
+    title: "title!",
+    body: "body!",
+    author: "Bob",
+    category: "udacity"
+});
 
-interface MyState {
-    counter: number;
-}
+console.log(act);
 
-interface MyStore extends redux.Store<MyState> {
-    dispatch<A extends MyAction>(action: A): A;
-}
+// import * as redux from 'redux';
 
-const reducer = function(state: MyState, action: MyAction) {
-    return {counter: state.counter + 1};
-}
+// interface MyAction extends redux.Action {
+//     type: "hello";
+// }
 
-const store: MyStore = redux.createStore(reducer, {counter: 5});
+// interface MyState {
+//     counter: number;
+// }
 
-store.dispatch({ type: "hello" })
-console.log(store.getState())
+// interface MyStore extends redux.Store<MyState> {
+//     dispatch<A extends MyAction>(action: A): A;
+// }
+
+// const reducer = function(state: MyState, action: MyAction) {
+//     return {counter: state.counter + 1};
+// }
+
+// const store: MyStore = redux.createStore(reducer, {counter: 5});
+
+// store.dispatch({ type: "hello" })
+// console.log(store.getState())
+
