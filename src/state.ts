@@ -21,26 +21,35 @@ export interface IComment extends IUserGenerated {
     parentDeleted: boolean;
 }
 
-export interface IPostIndex {
-    [postId: string]: IPost;
-}
-
-export interface ICommentIndex {
-    [commentId: string]: IComment;
+export interface IEntityIndex<T> {
+    byId: {
+        [id: string]: T;
+    };
+    allIds: string[];
 }
 
 export interface IApplicationState {
     entities: {
-        postsById: IPostIndex;
-        commentsById: ICommentIndex;
+        posts: IEntityIndex<IPost>;
+        comments: IEntityIndex<IComment>;
     };
 }
+
+/* Reducers */
+
+
 
 /* Initial state */
 
 const initialState: IApplicationState = {
     entities: {
-        postsById: {},
-        commentsById: {}
+        posts: {
+            byId: {},
+            allIds: []
+        },
+        comments: {
+            byId: {},
+            allIds: []
+        }
     }
 }
