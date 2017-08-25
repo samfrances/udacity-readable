@@ -35,3 +35,12 @@ export interface IApplicationState {
         commentsById: ICommentIndex;
     };
 }
+
+/* Initial state */
+
+const initialState: IApplicationState = {
+    entities: {
+        postsById: {},
+        commentsById: {}
+    }
+}
