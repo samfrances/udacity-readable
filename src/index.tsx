@@ -1,11 +1,11 @@
 import "core-js";
-import * as actions from './actions';
+import * as actions from "./actions";
 
 const act = actions.createPost({
     title: "title!",
     body: "body!",
     author: "Bob",
-    category: "udacity"
+    category: "udacity",
 });
 
 console.log(act);
