@@ -1,7 +1,7 @@
 /* Module for random experiments */
 
-import * as actions from "./actions";
-import * as state from "./state";
+import * as actions from "../actions";
+import * as state from "../state";
 import * as redux from 'redux';
 import thunk, { ThunkAction } from 'redux-thunk';
 
