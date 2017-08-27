@@ -24,7 +24,14 @@ function myActionAsync <E>(): MyThunkAction<E> {
         const result = await fetch("https://randomuser.me/api/", {mode: "cors"});
         const json = await result.json();
         const name = json.results[0].name + " " + json.results[0].name;
-        return myAction(name);
+        return dispatch(myAction(name));
+    }
+}
+
+function myActionAsync2<E>(): MyThunkAction<E> {
+    return async dispatch => {
+        const name = await Promise.resolve("Donald Duck");
+        return dispatch(myAction(name));
     }
 }
 
@@ -66,7 +73,8 @@ console.log(store.getState());
 store.dispatch(myAction("Bob Smith"));
 console.log(store.getState());
 
-store.dispatch(myActionAsync())
-.then(action => console.log(action));
+store.dispatch(myActionAsync2())
+.then(action => console.log(action))
+.then(e => console.log(store.getState()));
 
 store.dispatch({type: "SET_NAME", name: "Bob"})
