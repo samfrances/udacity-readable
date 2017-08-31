@@ -3,7 +3,7 @@ A user-generated content web app built with React, Redux and Typescript, as part
 
 Note: requires node v8.0.0
 
-Third-party code
+## Third-party code
 
 * Overall stucture of webpack config based on:
   - https://survivejs.com/webpack/developing/getting-started/
