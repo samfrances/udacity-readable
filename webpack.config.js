@@ -11,7 +11,7 @@ const commonConfig = {
     output: {
         filename: "bundle.js",
         path: PATHS.build,
-        //libraryTarget: "commonjs",
+        library: "readable"
     },
 
     devtool: "source-map",
