@@ -4,7 +4,9 @@
   "description": "A user-generated content web app built with React, Redux and Typescript, as part of the Udacity React Nanodegree",
   "main": "dist/bundle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --env development",
+    "build": "webpack --env production"
   },
   "repository": {
     "type": "git",
