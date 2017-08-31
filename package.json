@@ -23,6 +23,7 @@
     "@types/react": "^15.0.30",
     "@types/react-dom": "^15.5.0",
     "core-js": "^2.5.0",
+    "isomorphic-fetch": "^2.2.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "redux": "^3.7.2",

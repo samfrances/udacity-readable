@@ -1,4 +1,5 @@
 import "core-js";
+import "isomorphic-fetch";
 import * as redux from 'redux';
 
 import * as actions from "./actions";
