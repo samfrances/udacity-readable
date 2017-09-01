@@ -14,13 +14,13 @@ interface CommonBase {
 export interface PostCore {
     title: string;
     body: string;
-    owner: string;
+    author: string;
     category: Category;
 }
 
 export interface CommentCore {
     body: string;
-    owner: string;
+    author: string;
     parentId: Uuid;
     parentDeleted: boolean;
 }
