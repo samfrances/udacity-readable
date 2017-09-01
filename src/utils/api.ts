@@ -89,7 +89,7 @@ export async function vote(
                 entityType: "post" | "comment",
                 vote: "up" | "down"
             }
-        ): Promise<number> {
+        ): Promise<Post> {
 
     const res = await fetch(
         `${api}/${entityType}s/${id}`,
@@ -100,9 +100,9 @@ export async function vote(
         }
     )
 
-    const { voteScore }: Post  = await res.json()
+    const data: Post  = await res.json()
 
-    return voteScore;
+    return data;
 
 }
 
