@@ -1,25 +1,6 @@
 /* State types */
 
-export type Category = "react" | "redux" | "udacity";
-
-export interface IUserGenerated {
-    id: string;
-    timestamp: number;
-    body: string;
-    author: string;
-    voteScore: number;
-    deleted: Boolean;
-}
-
-export interface IPost extends IUserGenerated {
-    title: string;
-    category: Category;
-}
-
-export interface IComment extends IUserGenerated {
-    parentId: string;
-    parentDeleted: boolean;
-}
+import { Post, Comment } from "./interfaces";
 
 export interface IEntityIndex<T> {
     byId: {
@@ -30,8 +11,8 @@ export interface IEntityIndex<T> {
 
 export interface IApplicationState {
     entities: {
-        posts: IEntityIndex<IPost>;
-        comments: IEntityIndex<IComment>;
+        posts: IEntityIndex<Post>;
+        comments: IEntityIndex<Comment>;
     };
 }
 
@@ -53,3 +34,4 @@ const initialState: IApplicationState = {
         }
     }
 }
+

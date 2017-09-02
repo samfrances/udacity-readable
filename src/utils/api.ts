@@ -1,5 +1,5 @@
 import * as uuid4 from "uuid/v4";
-import { PostCore, Post, CommentCore, Comment, Uuid, Category } from "../interfaces";
+import { Post, Comment, Uuid, Category } from "../interfaces";
 
 const api = process.env.READABLE_APP_API_URL || 'http://localhost:5001'
 
@@ -56,7 +56,10 @@ export async function commentsById(id: Uuid) {
 
 const postHeaders = {...headers, 'Content-Type': 'application/json'}
 
-export async function publishPost(details: PostCore): Promise<Post> {
+type PostInit = {
+    [P in "id"|"timestamp"|"title"|"body"|"author"|"category"]: Post[P];
+}
+export async function publishPost(details: PostInit): Promise<Post> {
 
     const postBody = {
         ...details,
@@ -75,21 +78,40 @@ export async function publishPost(details: PostCore): Promise<Post> {
 
     const data: Post =  await res.json();
 
-    return data
-
+    return data;
 }
 
-export async function vote(
-            {
-                id,
-                entityType,
-                vote
-            }: {
-                id: Uuid,
-                entityType: "post" | "comment",
-                vote: "up" | "down"
-            }
-        ): Promise<Post> {
+type CommentInit = {
+    [P in "id"|"timestamp"|"body"|"author"|"parentId"]: Comment[P];
+}
+export async function publishComment(details: CommentInit): Promise<Comment> {
+
+    const postBody = {
+        ...details,
+        id: uuid4(),
+        timestamp: Date.now(),
+    };
+
+    const res = await fetch(
+        `${api}/comments`,
+        {
+            method: "post",
+            body: JSON.stringify(postBody),
+            headers: postHeaders
+        }
+    );
+
+    const data: Comment =  await res.json();
+
+    return data;
+}
+
+interface Vote {
+    id: Uuid;
+    entityType: "post" | "comment";
+    vote: "up" | "down";
+}
+export async function vote({ id, entityType, vote }: Vote): Promise<Post> {
 
     const res = await fetch(
         `${api}/${entityType}s/${id}`,
@@ -103,6 +125,58 @@ export async function vote(
     const data: Post  = await res.json()
 
     return data;
+}
+
+/* DELETE functions */
+
+export async function deletePost(id: Uuid) {
+
+    const res = await fetch(`${api}/posts/{id}`, { method: "delete", headers });
+
+    return await res.json();
+}
+
+export async function deleteComment(id: Uuid) {
+
+    const res = await fetch(`${api}/posts/{id}`, { method: "delete", headers });
+
+    return await res.json();
+}
+
+/* PUT functions */
+
+export async function editPost(args: { [P in "id"|"title"|"body"]: Post[P]; }) {
+
+    const { id, title, body } = args;
+
+    const res = await fetch(
+        `${api}/posts/{id}`,
+        {
+            method: "PUT",
+            headers: postHeaders,
+            body: JSON.stringify({ title, body })
+        }
+    );
+
+    return await res.json();
 
 }
 
+export async function editComment(args: { [P in "id"|"body"]: Comment[P]; }) {
+
+    const { id, body } = args;
+
+    const res = await fetch(
+        `${api}/posts/{id}`,
+        {
+            method: "PUT",
+            headers: postHeaders,
+            body: JSON.stringify({
+                timestamp: Date.now(),
+                body
+            })
+        }
+    );
+
+    return await res.json();
+}

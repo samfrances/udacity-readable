@@ -4,27 +4,21 @@ export type Category = "react" | "redux" | "udacity";
 
 export type Uuid = string;
 
-interface CommonBase {
+interface Common {
     id: Uuid;
     timestamp: number;
     voteScore: number;
     deleted: Boolean;
-}
-
-export interface PostCore {
-    title: string;
     body: string;
     author: string;
+}
+
+export interface Post extends Common {
+    title: string;
     category: Category;
 }
 
-export interface CommentCore {
-    body: string;
-    author: string;
+export interface Comment extends Common {
     parentId: Uuid;
     parentDeleted: boolean;
 }
-
-export interface Post extends PostCore, CommonBase {}
-
-export interface Comment extends CommentCore, CommonBase {}
