@@ -61,17 +61,11 @@ type PostInit = {
 }
 export async function publishPost(details: PostInit): Promise<Post> {
 
-    const postBody = {
-        ...details,
-        id: uuid4(),
-        timestamp: Date.now(),
-    };
-
     const res = await fetch(
         `${api}/posts`,
         {
             method: "post",
-            body: JSON.stringify(postBody),
+            body: JSON.stringify(details),
             headers: postHeaders
         }
     );
@@ -86,17 +80,11 @@ type CommentInit = {
 }
 export async function publishComment(details: CommentInit): Promise<Comment> {
 
-    const postBody = {
-        ...details,
-        id: uuid4(),
-        timestamp: Date.now(),
-    };
-
     const res = await fetch(
         `${api}/comments`,
         {
             method: "post",
-            body: JSON.stringify(postBody),
+            body: JSON.stringify(details),
             headers: postHeaders
         }
     );
@@ -131,14 +119,14 @@ export async function vote({ id, entityType, vote }: Vote): Promise<Post> {
 
 export async function deletePost(id: Uuid) {
 
-    const res = await fetch(`${api}/posts/{id}`, { method: "delete", headers });
+    const res = await fetch(`${api}/posts/${id}`, { method: "delete", headers });
 
     return await res.json();
 }
 
 export async function deleteComment(id: Uuid) {
 
-    const res = await fetch(`${api}/posts/{id}`, { method: "delete", headers });
+    const res = await fetch(`${api}/comments/${id}`, { method: "delete", headers });
 
     return await res.json();
 }
@@ -150,7 +138,7 @@ export async function editPost(args: { [P in "id"|"title"|"body"]: Post[P]; }) {
     const { id, title, body } = args;
 
     const res = await fetch(
-        `${api}/posts/{id}`,
+        `${api}/posts/${id}`,
         {
             method: "PUT",
             headers: postHeaders,
@@ -167,7 +155,7 @@ export async function editComment(args: { [P in "id"|"body"]: Comment[P]; }) {
     const { id, body } = args;
 
     const res = await fetch(
-        `${api}/posts/{id}`,
+        `${api}/comments/${id}`,
         {
             method: "PUT",
             headers: postHeaders,
