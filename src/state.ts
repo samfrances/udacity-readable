@@ -2,17 +2,17 @@
 
 import { Post, Comment } from "./interfaces";
 
-export interface IEntityIndex<T> {
+interface EntityIndex<T> {
     byId: {
         [id: string]: T;
     };
     allIds: string[];
 }
 
-export interface IApplicationState {
+export interface ApplicationState {
     entities: {
-        posts: IEntityIndex<Post>;
-        comments: IEntityIndex<Comment>;
+        posts: EntityIndex<Post>;
+        comments: EntityIndex<Comment>;
     };
 }
 
@@ -22,7 +22,7 @@ export interface IApplicationState {
 
 /* Initial state */
 
-const initialState: IApplicationState = {
+const initialState: ApplicationState = {
     entities: {
         posts: {
             byId: {},
