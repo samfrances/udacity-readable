@@ -1,3 +1,3 @@
-[submodule "reactnd-project-readable-starter"]
+[submodule "server"]
 	path = server
-	url = git@github.com:udacity/reactnd-project-readable-starter.git
+	url = git@github.com:samfrances/reactnd-project-readable-starter.git
