@@ -67,3 +67,17 @@ export const loadCommentsStart =
 
 export const loadCommentsSuccess =
     simpleActionCreator<LOAD_COMMENTS_SUCCESS, undefined>(LOAD_COMMENTS_SUCCESS);
+
+/* Asynchronous action types */
+
+export type LoadPostsAsync<E> = ThunkAction<
+    Promise<LoadPostsSuccess>,
+    ApplicationState,
+    E
+>;
+
+export type LoadCommentsAsync<E> = ThunkAction<
+    Promise<LoadCommentsSuccess>,
+    ApplicationState,
+    E
+>;
