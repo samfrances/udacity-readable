@@ -1,17 +1,40 @@
-import uuid4 from "uuid/v4";
+import * as uuid4 from "uuid/v4";
+import { Dispatch } from "redux";
+import { ThunkAction } from "redux-thunk";
 
-import { IPost, IComment, Category } from "./state";
+import { IApplicationState } from "./state";
+
+/* Constants */
+
+export type ActionTypesSync = ICreatePostAction | IEditPostParams | ICreateCommentAction
+    | IEditCommentAction | IDeleteAction | IUpVoteAction | IDownVoteAction;
+
+export type ActionTypesAsync<E> =
+    ThunkAction<Promise<ActionTypesSync>, IApplicationState, E>;
+
 
 /* Generic interfaces */
 
-interface IFluxAction<T extends string, P> {
+interface FluxAction<T extends string, P> {
     type: T;
     payload: P;
+    error?: boolean;
+    meta?: Object
+}
+
+const simpleActionCreator: <T extends string, P>(type: T) => (payload: P) => FluxAction<T, P> =
+    type => payload => ({
+        type,
+        payload,
+    });
+
+interface IAsyncActionCreator<P, S, R> {
+    <E>(args: P) : ThunkAction<Promise<R>, S, E>;
 }
 
 /* Post actions */
 
-type ICreatePostAction = IFluxAction<"CREATE_POST", IPost>;
+type ICreatePostAction = FluxAction<"CREATE_POST", IPost>;
 interface ICreatePostParams {
     title: string;
     body: string;
@@ -29,12 +52,26 @@ export const createPost = (args: ICreatePostParams): ICreatePostAction => ({
     },
 });
 
-type IEditPostAction = IFluxAction<"EDIT_POST", IEditPostParams>;
+type ICreatePostAsync = IAsyncActionCreator<ICreatePostParams,
+                                            IApplicationState,
+                                            ICreatePostAction>;
+export const createPostAsync: ICreatePostAsync =
+    args => async dispatch => {
+        await fetch("http:/localhost:5001/post", {method: "POST"});
+        return createPost(args);
+    };
+
+type IEditPostAction = FluxAction<"EDIT_POST", IEditPostParams>;
 interface IEditPostParams extends ICreatePostParams { id: string; }
-export const editPost = (args: IEditPostParams): IEditPostAction => ({
-    type: "EDIT_POST",
-    payload: {...args},
-});
+
+export const editPost = simpleActionCreator<"EDIT_POST", IEditPostParams>("EDIT_POST");
+const a1: IEditPostAction = editPost({ body: "hello", id: "h", title: "helo", author: "bob", category: "udacity" })
+console.log(a1)
+
+// export const editPost = (args: IEditPostParams): IEditPostAction => ({
+//     type: "EDIT_POST",
+//     payload: {...args},
+// });
 
 /* Comment actions */
 
@@ -43,7 +80,7 @@ interface ICommentParamsCommon {
     author: string;
 }
 
-type ICreateCommentAction = IFluxAction<"CREATE_COMMENT", IComment>;
+type ICreateCommentAction = FluxAction<"CREATE_COMMENT", IComment>;
 interface ICreateCommentParams extends ICommentParamsCommon {
     parentId: string;
 }
@@ -59,7 +96,7 @@ export const createComment = (args: ICreateCommentParams): ICreateCommentAction 
     },
 });
 
-type IEditCommentAction = IFluxAction<"EDIT_COMMENT", IEditCommentParams>;
+type IEditCommentAction = FluxAction<"EDIT_COMMENT", IEditCommentParams>;
 interface IEditCommentParams extends ICommentParamsCommon { id: string; }
 export const editComment = (args: IEditCommentParams): IEditCommentAction => ({
     type: "EDIT_COMMENT",
@@ -69,7 +106,7 @@ export const editComment = (args: IEditCommentParams): IEditCommentAction => ({
 /* Actions for both posts and comments */
 
 interface ISimpleActionParams { id: string; }
-interface ISimpleAction<T extends string> extends IFluxAction<T, ISimpleActionParams> {}
+interface ISimpleAction<T extends string> extends FluxAction<T, ISimpleActionParams> {}
 
 type IDeleteAction = ISimpleAction<"DELETE">;
 export const deleteIt = (args: ISimpleActionParams): IDeleteAction => ({
