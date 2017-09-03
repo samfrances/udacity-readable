@@ -56,9 +56,7 @@ export async function commentsById(id: Uuid) {
 
 const postHeaders = {...headers, 'Content-Type': 'application/json'}
 
-type PostInit = {
-    [P in "id"|"timestamp"|"title"|"body"|"author"|"category"]: Post[P];
-}
+type PostInit = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">
 export async function publishPost(details: PostInit): Promise<Post> {
 
     const res = await fetch(
@@ -75,9 +73,7 @@ export async function publishPost(details: PostInit): Promise<Post> {
     return data;
 }
 
-type CommentInit = {
-    [P in "id"|"timestamp"|"body"|"author"|"parentId"]: Comment[P];
-}
+type CommentInit = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
 export async function publishComment(details: CommentInit): Promise<Comment> {
 
     const res = await fetch(
@@ -133,7 +129,7 @@ export async function deleteComment(id: Uuid) {
 
 /* PUT functions */
 
-export async function editPost(args: { [P in "id"|"title"|"body"]: Post[P]; }) {
+export async function editPost(args: Pick<Post, "id"|"title"|"body">) {
 
     const { id, title, body } = args;
 
@@ -150,7 +146,7 @@ export async function editPost(args: { [P in "id"|"title"|"body"]: Post[P]; }) {
 
 }
 
-export async function editComment(args: { [P in "id"|"body"]: Comment[P]; }) {
+export async function editComment(args: Pick<Comment, "id"|"body">) {
 
     const { id, body } = args;
 
