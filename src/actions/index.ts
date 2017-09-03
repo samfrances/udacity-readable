@@ -8,11 +8,15 @@ import { Post, Comment, Category } from "../interfaces"
 
 /* Constants */
 
-export type SynchActionTypes =
+export type ActionTypesSynch =
     | LoadPostsStart
     | LoadPostsSuccess
     | LoadCommentsStart
     | LoadCommentsSuccess;
+
+export type ActionTypesAsync<E> =
+    | LoadPostsAsync<E>
+    | LoadCommentsAsync<E>;
 
 type LOAD_POSTS_START = "LOAD_POSTS_START";
 const LOAD_POSTS_START = "LOAD_POSTS_START";
