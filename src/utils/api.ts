@@ -54,7 +54,7 @@ export async function commentsById(id: Uuid) {
 
 /* POST functions */
 
-const postHeaders = {...headers, "Content-Type": "application/json"}
+const postHeaders = {...headers, "Content-Type": "application/json"};
 
 type PostInit = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">;
 export async function publishPost(details: PostInit): Promise<Post> {
