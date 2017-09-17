@@ -1,11 +1,11 @@
 import * as uuid4 from "uuid/v4";
 import { Post, Comment, Uuid, Category } from "../interfaces";
 
-const api = process.env.READABLE_APP_API_URL || 'http://localhost:5001'
+const api = process.env.READABLE_APP_API_URL || "http://localhost:5001";
 
 const headers = {
-    'Authorization': 'whatever-you-want',
-    'Accept': 'application/json',
+    Authorization: "whatever-you-want",
+    Accept: "application/json",
 };
 
 /* GET functions */
@@ -42,21 +42,21 @@ export async function commentsByPostId(id: Uuid) {
     return await (await fetch(
         `${api}/posts/${id}/comments`,
         { headers }
-    )).json()
+    )).json();
 }
 
 export async function commentsById(id: Uuid) {
     return await (await fetch(
         `${api}/comments/${id}`,
         { headers }
-    )).json()
+    )).json();
 }
 
 /* POST functions */
 
-const postHeaders = {...headers, 'Content-Type': 'application/json'}
+const postHeaders = {...headers, "Content-Type": "application/json"}
 
-type PostInit = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">
+type PostInit = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">;
 export async function publishPost(details: PostInit): Promise<Post> {
 
     const res = await fetch(
@@ -64,7 +64,7 @@ export async function publishPost(details: PostInit): Promise<Post> {
         {
             method: "post",
             body: JSON.stringify(details),
-            headers: postHeaders
+            headers: postHeaders,
         }
     );
 
@@ -81,7 +81,7 @@ export async function publishComment(details: CommentInit): Promise<Comment> {
         {
             method: "post",
             body: JSON.stringify(details),
-            headers: postHeaders
+            headers: postHeaders,
         }
     );
 
@@ -95,18 +95,18 @@ interface Vote {
     entityType: "post" | "comment";
     vote: "up" | "down";
 }
-export async function vote({ id, entityType, vote }: Vote): Promise<Post> {
+export async function castVote({ id, entityType, vote }: Vote): Promise<Post> {
 
     const res = await fetch(
         `${api}/${entityType}s/${id}`,
         {
             method: "post",
             body: JSON.stringify({ option: `${vote}Vote` }),
-            headers: postHeaders
+            headers: postHeaders,
         }
-    )
+    );
 
-    const data: Post  = await res.json()
+    const data: Post  = await res.json();
 
     return data;
 }
@@ -138,7 +138,7 @@ export async function editPost(args: Pick<Post, "id"|"title"|"body">) {
         {
             method: "PUT",
             headers: postHeaders,
-            body: JSON.stringify({ title, body })
+            body: JSON.stringify({ title, body }),
         }
     );
 
@@ -157,8 +157,8 @@ export async function editComment(args: Pick<Comment, "id"|"body">) {
             headers: postHeaders,
             body: JSON.stringify({
                 timestamp: Date.now(),
-                body
-            })
+                body,
+            }),
         }
     );
 
