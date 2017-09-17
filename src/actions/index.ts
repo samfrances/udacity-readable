@@ -2,7 +2,7 @@ import * as uuid4 from "uuid/v4";
 import * as redux from "redux";
 import * as thunk from "redux-thunk";
 
-import { allPosts, allComments } from "../utils/api";
+import { allPosts, commentsByPostId } from "../utils/api";
 
 import { ApplicationState } from "../state";
 
@@ -16,9 +16,9 @@ export type ActionTypesSynch =
     | LoadCommentsStart
     | LoadCommentsSuccess;
 
-export type ActionTypesAsync<E> =
-    | LoadPostsAsync<E>
-    | LoadCommentsAsync<E>;
+export type ActionTypesAsync =
+    | LoadPostsAsync
+    | LoadCommentsAsync;
 
 type LOAD_POSTS_START = "LOAD_POSTS_START";
 const LOAD_POSTS_START = "LOAD_POSTS_START";
@@ -48,7 +48,10 @@ export type LoadPostsSuccess = SimpleFSA<
     { posts: Post[] }
 >;
 
-export type LoadCommentsStart = {type: LOAD_COMMENTS_START};
+export type LoadCommentsStart = SimpleFSA<
+    LOAD_COMMENTS_START,
+    { posts: Post[]}
+>;
 
 export type LoadCommentsSuccess = SimpleFSA<
     LOAD_COMMENTS_SUCCESS,
@@ -66,8 +69,11 @@ export const loadPostsSuccess: (posts: Post[]) => LoadPostsSuccess =
         payload: { posts }
     });
 
-export const loadCommentsStart: () => LoadCommentsStart =
-    () => ({ type: LOAD_COMMENTS_START });
+export const loadCommentsStart: (posts: Post[]) => LoadCommentsStart =
+    (posts) => ({
+        type: LOAD_COMMENTS_START,
+        payload: { posts }
+    });
 
 export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
     (comments) => ({
@@ -81,30 +87,39 @@ type dispatch = redux.Dispatch<ApplicationState>;
 
 type getState = () => ApplicationState;
 
-export type LoadPostsAsync<E> = thunk.ThunkAction<
+export type LoadPostsAsync = thunk.ThunkAction<
     Promise<LoadPostsSuccess>,
     ApplicationState,
-    E
+    {}
 >;
 
-export type LoadCommentsAsync<E> = thunk.ThunkAction<
+export type LoadCommentsAsync = thunk.ThunkAction<
     Promise<LoadCommentsSuccess>,
     ApplicationState,
-    E
+    {}
 >;
 
 /* Asynchronous action creators */
 
-export const loadPostsAsync: <E>() => LoadPostsAsync<E> =
+export const loadPostsAsync: () => LoadPostsAsync =
     () => async (dispatch: dispatch, getState: getState) => {
         dispatch(loadPostsStart());
         const posts = await allPosts();
         return dispatch(loadPostsSuccess(posts));
     };
 
-export const loadCommentsAsync: <E>() => LoadCommentsAsync<E> =
+export const loadCommentsAsync: () => LoadCommentsAsync =
     () => async (dispatch: dispatch, getState: getState) => {
-        dispatch(loadCommentsStart());
-        const comments = await allComments();
+        const posts = Object.values(getState().entities.posts.byId)
+        dispatch(loadCommentsStart(posts));
+
+        const comments: Comment[] = await (async () => {
+            const commentLists: Comment[][] = await Promise.all(
+                posts.map(post => commentsByPostId(post.id))
+            )
+            // flatten list of list of comments
+            return [].concat.apply(commentLists);
+        })();
+
         return dispatch(loadCommentsSuccess(comments));
     };
