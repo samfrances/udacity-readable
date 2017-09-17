@@ -1,7 +1,6 @@
-import * as uuid4 from "uuid/v4";
 import { Post, Comment, Uuid, Category } from "../interfaces";
 
-const api = process.env.READABLE_APP_API_URL || "http://localhost:5001";
+const api = process.env.READABLE_APP_API_URL;
 
 const headers = {
     Authorization: "whatever-you-want",

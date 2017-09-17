@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require("webpack");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const PATHS = {
@@ -60,6 +61,9 @@ const commonConfig = {
     },
 
     plugins: [
+        new webpack.EnvironmentPlugin({
+            READABLE_APP_API_URL: "http://localhost:5001",
+        }),
         new ExtractTextPlugin({filename: "styles.css"}),
     ]
 };

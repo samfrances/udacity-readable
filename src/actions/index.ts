@@ -1,4 +1,3 @@
-import * as uuid4 from "uuid/v4";
 import * as redux from "redux";
 import * as thunk from "redux-thunk";
 
