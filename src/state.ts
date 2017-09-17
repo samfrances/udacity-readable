@@ -2,6 +2,7 @@
 
 import * as redux from "redux";
 import thunk from "redux-thunk";
+import { composeWithDevTools } from "redux-devtools-extension";
 
 import { Post, Comment } from "./interfaces";
 import {
@@ -105,9 +106,10 @@ const entities = redux.combineReducers<EntitiesState>({ posts, comments });
 /* Store creation */
 
 export function storeFactory(): ApplicationStore {
-    return redux.createStore(
-        redux.combineReducers({ entities }),
-        getInitialState(),
-        redux.applyMiddleware(thunk),
-    );
+
+    const reducer = redux.combineReducers<ApplicationState>({ entities });
+    const initialState = getInitialState();
+    const enhancer = composeWithDevTools(redux.applyMiddleware(thunk));
+
+    return redux.createStore<ApplicationState>(reducer, initialState, enhancer);
 }
