@@ -1,10 +1,15 @@
 /* State types */
 
 import * as redux from "redux";
-import thunk from 'redux-thunk';
+import thunk from "redux-thunk";
 
 import { Post, Comment } from "./interfaces";
-import { ActionTypesSynch, ActionTypesAsync } from "./actions";
+import {
+    ActionTypesSynch,
+    ActionTypesAsync,
+    LOAD_POSTS_SUCCESS,
+    LOAD_COMMENTS_SUCCESS,
+} from "./actions";
 
 interface EntityIndex<T> {
     byId: {
@@ -13,11 +18,17 @@ interface EntityIndex<T> {
     allIds: string[];
 }
 
+type PostsState = EntityIndex<Post>;
+
+type CommentsState = EntityIndex<Comment>;
+
+interface EntitiesState {
+    posts: PostsState;
+    comments: CommentsState;
+}
+
 export interface ApplicationState {
-    entities: {
-        posts: EntityIndex<Post>;
-        comments: EntityIndex<Comment>;
-    };
+    entities: EntitiesState;
 }
 
 export interface ApplicationStore {
@@ -30,30 +41,73 @@ export interface ApplicationStore {
 
 /* Initial state */
 
+const getEmptyIndex: <E>() => EntityIndex<E> =
+    () => ({
+        byId: {},
+        allIds: [],
+    });
+
 const getInitialState: () => ApplicationState =
     () => ({
         entities: {
-            posts: {
-                byId: {},
-                allIds: []
-            },
-            comments: {
-                byId: {},
-                allIds: []
-            }
-        }
+            posts: getEmptyIndex<Post>(),
+            comments: getEmptyIndex<Comment>(),
+        },
     });
 
 /* Reducers */
 
-function myReducer(state: ApplicationState, action: ActionTypesSynch): ApplicationState {
-    return state;
+function posts(
+    state: PostsState = getEmptyIndex<Post>(),
+    action: ActionTypesSynch,
+): PostsState {
+    switch (action.type) {
+
+        case LOAD_POSTS_SUCCESS:
+            return {
+                byId: Object.assign({},
+                    ...action.payload.posts.map( post => ({ [post.id]: post }) )
+                ),
+                allIds: action.payload.posts.map(post => post.id),
+            };
+
+        default:
+            return state;
+    }
 }
 
-function storeFactory (): ApplicationStore {
+function comments(
+    state: CommentsState = getEmptyIndex<Comment>(),
+    action: ActionTypesSynch,
+): CommentsState {
+
+    switch (action.type) {
+
+        case LOAD_COMMENTS_SUCCESS:
+            return {
+                byId: Object.assign({},
+                    ...action.payload.comments.map(
+                        comment => ({ [comment.id]: comment })
+                    )
+                ),
+                allIds: action.payload.comments.map(post => post.id),
+            };
+
+        default:
+            return state;
+
+    }
+
+}
+
+const entities = redux.combineReducers<EntitiesState>({ posts, comments });
+
+/* Store creation */
+
+export function storeFactory(): ApplicationStore {
     return redux.createStore(
-        myReducer,
+        redux.combineReducers({ entities }),
         getInitialState(),
-        redux.applyMiddleware(thunk)
+        redux.applyMiddleware(thunk),
     );
 }
