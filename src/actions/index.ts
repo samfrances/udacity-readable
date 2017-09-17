@@ -1,6 +1,8 @@
 import * as uuid4 from "uuid/v4";
-import { Dispatch } from "redux";
-import { ThunkAction } from "redux-thunk";
+import * as redux from "redux";
+import * as thunk from "redux-thunk";
+
+import { allPosts, allComments } from "../utils/api";
 
 import { ApplicationState } from "../state";
 
@@ -30,58 +32,79 @@ const LOAD_COMMENTS_START = "LOAD_COMMENTS_START";
 type LOAD_COMMENTS_SUCCESS = "LOAD_COMMENTS_SUCCESS";
 const LOAD_COMMENTS_SUCCESS = "LOAD_COMMENTS_SUCCESS";
 
-/* Generic interfaces */
+/* Generic action types */
 
-interface FluxAction<T extends string, P> {
+interface SimpleFSA<T, P> {
     type: T;
-    payload?: P;
-    error?: boolean;
-    meta?: Object
+    payload: P;
 }
 
 /* Synchronous action types */
 
-export type LoadPostsStart = FluxAction<LOAD_POSTS_START, undefined>;
+export interface LoadPostsStart {type: LOAD_POSTS_START};
 
-export type LoadPostsSuccess = FluxAction<LOAD_POSTS_SUCCESS, Post[]>;
+export type LoadPostsSuccess = SimpleFSA<
+    LOAD_POSTS_SUCCESS,
+    { posts: Post[] }
+>;
 
-export type LoadCommentsStart = FluxAction<LOAD_COMMENTS_START, undefined>;
+export type LoadCommentsStart = {type: LOAD_COMMENTS_START};
 
-export type LoadCommentsSuccess = FluxAction<LOAD_COMMENTS_SUCCESS, Comment[]>;
-
-
-/* Helpers and factories */
-
-const simpleActionCreator: <T extends string, P>(type: T) => (payload: P) => FluxAction<T, P> =
-    type => payload => ({
-        type,
-        payload,
-    });
+export type LoadCommentsSuccess = SimpleFSA<
+    LOAD_COMMENTS_SUCCESS,
+    { comments: Comment[]}
+>;
 
 /* Synchronous action creators */
 
-export const loadPostsStart =
-    simpleActionCreator<LOAD_POSTS_START, undefined>(LOAD_POSTS_START);
+export const loadPostsStart: () => LoadPostsStart =
+    () =>  ({ type: LOAD_POSTS_START });
 
-export const loadPostsSuccess =
-    simpleActionCreator<LOAD_POSTS_SUCCESS, Post[]>(LOAD_POSTS_SUCCESS);
+export const loadPostsSuccess: (posts: Post[]) => LoadPostsSuccess =
+    (posts) => ({
+        type: LOAD_POSTS_SUCCESS,
+        payload: { posts }
+    });
 
-export const loadCommentsStart =
-    simpleActionCreator<LOAD_COMMENTS_START, undefined>(LOAD_COMMENTS_START);
+export const loadCommentsStart: () => LoadCommentsStart =
+    () => ({ type: LOAD_COMMENTS_START });
 
-export const loadCommentsSuccess =
-    simpleActionCreator<LOAD_COMMENTS_SUCCESS, undefined>(LOAD_COMMENTS_SUCCESS);
+export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
+    (comments) => ({
+        type: LOAD_COMMENTS_SUCCESS,
+        payload: { comments },
+    });
 
 /* Asynchronous action types */
 
-export type LoadPostsAsync<E> = ThunkAction<
+type dispatch = redux.Dispatch<ApplicationState>;
+
+type getState = () => ApplicationState;
+
+export type LoadPostsAsync<E> = thunk.ThunkAction<
     Promise<LoadPostsSuccess>,
     ApplicationState,
     E
 >;
 
-export type LoadCommentsAsync<E> = ThunkAction<
+export type LoadCommentsAsync<E> = thunk.ThunkAction<
     Promise<LoadCommentsSuccess>,
     ApplicationState,
     E
 >;
+
+/* Asynchronous action creators */
+
+export const loadPostsAsync: <E>() => LoadPostsAsync<E> =
+    () => async (dispatch: dispatch, getState: getState) => {
+        dispatch(loadPostsStart());
+        const posts = await allPosts();
+        return dispatch(loadPostsSuccess(posts));
+    };
+
+export const loadCommentsAsync: <E>() => LoadCommentsAsync<E> =
+    () => async (dispatch: dispatch, getState: getState) => {
+        dispatch(loadCommentsStart());
+        const comments = await allComments();
+        return dispatch(loadCommentsSuccess(comments));
+    };
