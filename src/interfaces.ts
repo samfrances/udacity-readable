@@ -8,7 +8,7 @@ interface Common {
     id: Uuid;
     timestamp: number;
     voteScore: number;
-    deleted: Boolean;
+    deleted: boolean;
     body: string;
     author: string;
 }

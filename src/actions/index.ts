@@ -1,7 +1,8 @@
 import * as redux from "redux";
 import * as thunk from "redux-thunk";
+import * as uuid4 from "uuid/v4";
 
-import { allPosts, commentsByPostId } from "../utils/api";
+import * as api from "../utils/api";
 
 import { ApplicationState } from "../state";
 
@@ -13,11 +14,14 @@ export type ActionTypesSynch =
     | LoadPostsStart
     | LoadPostsSuccess
     | LoadCommentsStart
-    | LoadCommentsSuccess;
+    | LoadCommentsSuccess
+    | CreatePostStart
+    | CreatePostSuccess;
 
 export type ActionTypesAsync =
     | LoadPostsAsync
-    | LoadCommentsAsync;
+    | LoadCommentsAsync
+    | CreatePostAsync;
 
 export type LOAD_POSTS_START = "LOAD_POSTS_START";
 export const LOAD_POSTS_START = "LOAD_POSTS_START";
@@ -30,6 +34,12 @@ export const LOAD_COMMENTS_START = "LOAD_COMMENTS_START";
 
 export type LOAD_COMMENTS_SUCCESS = "LOAD_COMMENTS_SUCCESS";
 export const LOAD_COMMENTS_SUCCESS = "LOAD_COMMENTS_SUCCESS";
+
+export type CREATE_POST_START = "CREATE_POST_START";
+export const CREATE_POST_START = "CREATE_POST_START";
+
+export type CREATE_POST_SUCCESS = "CREATE_POST_SUCCESS";
+export const CREATE_POST_SUCCESS = "CREATE_POST_SUCCESS";
 
 /* Generic action types */
 
@@ -57,6 +67,10 @@ export type LoadCommentsSuccess = SimpleFSA<
     { comments: Comment[]}
 >;
 
+export type CreatePostStart = SimpleFSA<CREATE_POST_START, api.PostInit>;
+
+export type CreatePostSuccess = SimpleFSA<CREATE_POST_SUCCESS, Post>;
+
 /* Synchronous action creators */
 
 export const loadPostsStart: () => LoadPostsStart =
@@ -80,6 +94,18 @@ export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
         payload: { comments },
     });
 
+export const createPostStart: (payload: api.PostInit) => CreatePostStart =
+    payload => ({
+        type: CREATE_POST_START,
+        payload,
+    });
+
+export const createPostSuccess: (post: Post) => CreatePostSuccess =
+    post => ({
+        type: CREATE_POST_SUCCESS,
+        payload: post,
+    });
+
 /* Asynchronous action types */
 
 type dispatchFunc = redux.Dispatch<ApplicationState>;
@@ -98,12 +124,18 @@ export type LoadCommentsAsync = thunk.ThunkAction<
     {}
 >;
 
+export type CreatePostAsync = thunk.ThunkAction<
+    Promise<CreatePostSuccess>,
+    ApplicationState,
+    {}
+>;
+
 /* Asynchronous action creators */
 
 export const loadPostsAsync: () => LoadPostsAsync =
     () => async (dispatch: dispatchFunc, getState: getStateFunc) => {
         dispatch(loadPostsStart());
-        const posts = await allPosts();
+        const posts = await api.allPosts();
         return dispatch(loadPostsSuccess(posts));
     };
 
@@ -114,7 +146,7 @@ export const loadCommentsAsync: () => LoadCommentsAsync =
 
         const comments: Comment[] = await (async () => {
             const commentLists: Comment[][] = await Promise.all(
-                posts.map(post => commentsByPostId(post.id))
+                posts.map(post => api.commentsByPostId(post.id))
             );
             // flatten list of list of comments
             return ([] as Comment[]).concat(...commentLists);
@@ -122,3 +154,18 @@ export const loadCommentsAsync: () => LoadCommentsAsync =
 
         return dispatch(loadCommentsSuccess(comments));
     };
+
+export function createPostAsync(
+    details: Pick<Post, "title"|"body"|"author"|"category">
+): CreatePostAsync {
+    return async (dispatch: dispatchFunc, getState: getStateFunc) => {
+
+        const id = uuid4();
+        const timestamp = Date.now();
+        const postInit = {...details, id, timestamp};
+
+        dispatch(createPostStart(postInit));
+        const post = await api.publishPost(postInit);
+        return dispatch(createPostSuccess(post));
+    };
+}

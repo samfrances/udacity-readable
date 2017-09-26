@@ -6,3 +6,8 @@ declare var process: {
         READABLE_APP_API_URL: string;
     };
 };
+
+declare module "uuid/v4" {
+    const v4: () => string;
+    export = v4;
+}
