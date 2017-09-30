@@ -115,14 +115,14 @@ export async function castVote({ id, entityType, vote }: Vote): Promise<Post> {
 
 /* DELETE functions */
 
-export async function deletePost(id: Uuid) {
+export async function deletePost(id: Uuid): Promise<Post> {
 
     const res = await fetch(`${api}/posts/${id}`, { method: "delete", headers });
 
     return await res.json();
 }
 
-export async function deleteComment(id: Uuid) {
+export async function deleteComment(id: Uuid): Promise<Comment> {
 
     const res = await fetch(`${api}/comments/${id}`, { method: "delete", headers });
 
