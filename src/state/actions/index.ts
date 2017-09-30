@@ -8,6 +8,7 @@ import { Post, Comment, Category } from "../../interfaces";
 import {
     LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
     CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
+    EDIT_POST_START, EDIT_POST_SUCCESS,
 } from "./constants";
 
 /* Constants */
@@ -20,13 +21,16 @@ export type ActionTypesSynch =
     | CreatePostStart
     | CreatePostSuccess
     | CreateCommentStart
-    | CreateCommentSuccess;
+    | CreateCommentSuccess
+    | EditPostStart
+    | EditPostSuccess;
 
 export type ResultActionTypes =
     | LoadPostsSuccess
     | LoadCommentsSuccess
     | CreatePostSuccess
-    | CreateCommentSuccess;
+    | CreateCommentSuccess
+    | EditPostSuccess;
 
 
 /* Generic action types */
@@ -55,13 +59,17 @@ export type LoadCommentsSuccess = SimpleFSA<
     { comments: Comment[]}
 >;
 
-export type CreatePostStart = SimpleFSA<CREATE_POST_START, api.PostInit>;
+export type CreatePostStart = SimpleFSA<CREATE_POST_START, PostInitFields>;
 
 export type CreatePostSuccess = SimpleFSA<CREATE_POST_SUCCESS, Post>;
 
-export type CreateCommentStart = SimpleFSA<CREATE_COMMENT_START, api.CommentInit>;
+export type CreateCommentStart = SimpleFSA<CREATE_COMMENT_START, CommentInitFields>;
 
 export type CreateCommentSuccess = SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>;
+
+export type EditPostStart = SimpleFSA<EDIT_POST_START, PostEditFields>;
+
+export type EditPostSuccess = SimpleFSA<EDIT_POST_SUCCESS, Post>;
 
 /* Synchronous action creators */
 
@@ -86,7 +94,8 @@ export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
         payload: { comments },
     });
 
-export const createPostStart: (payload: api.PostInit) => CreatePostStart =
+type PostInitFields = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">;
+export const createPostStart: (payload: PostInitFields) => CreatePostStart =
     payload => ({
         type: CREATE_POST_START,
         payload,
@@ -98,7 +107,8 @@ export const createPostSuccess: (post: Post) => CreatePostSuccess =
         payload: post,
     });
 
-export const createCommentStart: (payload: api.CommentInit) => CreateCommentStart =
+type CommentInitFields = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
+export const createCommentStart: (payload: CommentInitFields) => CreateCommentStart =
     payload => ({
         type: CREATE_COMMENT_START,
         payload,
@@ -108,6 +118,19 @@ export const createCommentSuccess: (comment: Comment) => CreateCommentSuccess =
     comment => ({
         type: CREATE_COMMENT_SUCCESS,
         payload: comment,
+    });
+
+type PostEditFields = Pick<Post, "id"|"title"|"body">;
+export const editPostStart: (payload: PostEditFields) => EditPostStart =
+    payload => ({
+        type: EDIT_POST_START,
+        payload,
+    });
+
+export const editPostSuccess: (post: Post) => EditPostSuccess =
+    post => ({
+        type: EDIT_POST_SUCCESS,
+        payload: post,
     });
 
 /* Asynchronous action types */
@@ -122,6 +145,7 @@ export type LoadPostsAsync = AsyncAppAction<LoadPostsSuccess>;
 export type LoadCommentsAsync = AsyncAppAction<LoadCommentsSuccess>;
 export type CreatePostAsync = AsyncAppAction<CreatePostSuccess>;
 export type CreateCommentAsync = AsyncAppAction<CreateCommentSuccess>;
+export type EditPostAsync = AsyncAppAction<EditPostSuccess>;
 
 /* Asynchronous action creators */
 
@@ -150,7 +174,7 @@ export const loadCommentsAsync: () => LoadCommentsAsync =
 
 
 export const createPostAsync: (
-    details: Pick<api.PostInit, "title"|"body"|"author"|"category">
+    details: Pick<PostInitFields, "title"|"body"|"author"|"category">
 ) => CreatePostAsync =
     details => async (dispatch, getState) => {
 
@@ -164,7 +188,7 @@ export const createPostAsync: (
     };
 
 export const createCommentAsync: (
-    details: Pick<api.CommentInit, "body"|"author"|"parentId">
+    details: Pick<CommentInitFields, "body"|"author"|"parentId">
 ) => CreateCommentAsync =
     details => async (dispatch, getState) => {
 
@@ -175,4 +199,13 @@ export const createCommentAsync: (
         dispatch(createCommentStart(commentInit));
         const comment = await api.publishComment(commentInit);
         return dispatch(createCommentSuccess(comment));
+    };
+
+export const editPostAsync: (details: PostEditFields) => EditPostAsync =
+    details => async (dispatch, getState) => {
+
+        dispatch(editPostStart(details));
+        const post = await api.editPost(details);
+        return dispatch(editPostSuccess(post));
+
     };

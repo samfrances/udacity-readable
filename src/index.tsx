@@ -38,6 +38,14 @@ const store = state.storeFactory();
         })
     );
 
+    await store.dispatch(
+        actions.editPostAsync({
+            id: parentId,
+            body: "my post has been edited",
+            title: "my post",
+        })
+    );
+
 })();
 
 export default { api, state, store, actions };

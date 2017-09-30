@@ -55,8 +55,10 @@ export async function commentsById(id: Uuid) {
 
 const postHeaders = {...headers, "Content-Type": "application/json"};
 
-export type PostInit = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">;
-export async function publishPost(details: PostInit): Promise<Post> {
+
+export async function publishPost(
+    details: Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">
+): Promise<Post> {
 
     const res = await fetch(
         `${api}/posts`,
@@ -72,8 +74,9 @@ export async function publishPost(details: PostInit): Promise<Post> {
     return data;
 }
 
-export type CommentInit = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
-export async function publishComment(details: CommentInit): Promise<Comment> {
+export async function publishComment(
+    details: Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">
+): Promise<Comment> {
 
     const res = await fetch(
         `${api}/comments`,
@@ -128,7 +131,9 @@ export async function deleteComment(id: Uuid) {
 
 /* PUT functions */
 
-export async function editPost(args: Pick<Post, "id"|"title"|"body">) {
+export async function editPost(
+    args: Pick<Post, "id"|"title"|"body">
+): Promise<Post> {
 
     const { id, title, body } = args;
 
