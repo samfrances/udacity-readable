@@ -1,10 +1,8 @@
 /* State types */
 
 import * as redux from "redux";
-import thunk from "redux-thunk";
-import { composeWithDevTools } from "redux-devtools-extension";
 
-import { Post, Comment } from "./interfaces";
+import { Post, Comment } from "../interfaces";
 import {
     ActionTypesSynch,
     ActionTypesAsync,
@@ -30,14 +28,6 @@ interface EntitiesState {
 
 export interface ApplicationState {
     entities: EntitiesState;
-}
-
-export interface ApplicationStore {
-    dispatch(action: ActionTypesSynch): ActionTypesSynch;
-    dispatch(action: ActionTypesAsync): Promise<ActionTypesAsync>;
-    getState(): ApplicationState;
-    subscribe(listener: () => void): redux.Unsubscribe;
-    replaceReducer(nextReducer: redux.Reducer<ApplicationState>): void;
 }
 
 /* Initial state */
@@ -103,13 +93,6 @@ function comments(
 
 const entities = redux.combineReducers<EntitiesState>({ posts, comments });
 
-/* Store creation */
+const reducer = redux.combineReducers<ApplicationState>({ entities });
 
-export function storeFactory(): ApplicationStore {
-
-    const reducer = redux.combineReducers<ApplicationState>({ entities });
-    const initialState = getInitialState();
-    const enhancer = composeWithDevTools(redux.applyMiddleware(thunk));
-
-    return redux.createStore<ApplicationState>(reducer, initialState, enhancer);
-}
+export default reducer;

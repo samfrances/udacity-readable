@@ -2,11 +2,11 @@ import * as redux from "redux";
 import * as thunk from "redux-thunk";
 import * as uuid4 from "uuid/v4";
 
-import * as api from "../utils/api";
+import * as api from "../../utils/api";
 
-import { ApplicationState } from "../state";
+import { ApplicationState } from "../reducers";
 
-import { Post, Comment, Category } from "../interfaces";
+import { Post, Comment, Category } from "../../interfaces";
 
 /* Constants */
 

@@ -2,7 +2,7 @@ import "core-js";
 import "isomorphic-fetch";
 import * as redux from "redux";
 
-import * as actions from "./actions";
+import * as actions from "./state/actions";
 import * as state from "./state";
 import * as api from "./utils/api";
 // import './scratchpads/thunk1';
