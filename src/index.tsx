@@ -19,7 +19,7 @@ const store = state.storeFactory();
 
     await store.dispatch(actions.loadCommentsAsync());
 
-    const resAction = await store.dispatch(
+    const resPostAction = await store.dispatch(
         actions.createPostAsync({
             title: "my post",
             body: "blah",
@@ -28,9 +28,9 @@ const store = state.storeFactory();
         })
     );
 
-    const parentId = resAction.payload.id;
+    const parentId = resPostAction.payload.id;
 
-    await store.dispatch(
+    const resCommentAction = await store.dispatch(
         actions.createCommentAsync({
             body: "Hello, I have a comment to make",
             author: "Commenter one",
@@ -43,6 +43,13 @@ const store = state.storeFactory();
             id: parentId,
             body: "my post has been edited",
             title: "my post",
+        })
+    );
+
+    await store.dispatch(
+        actions.editCommentAsync({
+            id: resCommentAction.payload.id,
+            body: "I have edited this comment too",
         })
     );
 

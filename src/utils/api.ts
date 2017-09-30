@@ -150,7 +150,9 @@ export async function editPost(
 
 }
 
-export async function editComment(args: Pick<Comment, "id"|"body">) {
+export async function editComment(
+    args: Pick<Comment, "id"|"body">
+): Promise<Comment> {
 
     const { id, body } = args;
 

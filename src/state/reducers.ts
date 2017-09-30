@@ -6,7 +6,7 @@ import { Post, Comment } from "../interfaces";
 import { ActionTypesSynch } from "./actions";
 import {
     LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, EDIT_POST_SUCCESS,
-    LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS,
+    LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS, EDIT_COMMENT_SUCCESS,
 } from "./actions/constants";
 
 interface EntityIndex<T> {
@@ -114,6 +114,15 @@ function comments(
                     ...state.allIds,
                     action.payload.id,
                 ],
+            };
+
+        case EDIT_COMMENT_SUCCESS:
+            return {
+                byId: {
+                    ...state.byId,
+                    [action.payload.id]: action.payload,
+                },
+                allIds: state.allIds,
             };
 
         default:

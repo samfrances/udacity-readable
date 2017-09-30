@@ -8,7 +8,7 @@ import { Post, Comment, Category } from "../../interfaces";
 import {
     LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
     CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
-    EDIT_POST_START, EDIT_POST_SUCCESS,
+    EDIT_POST_START, EDIT_POST_SUCCESS, EDIT_COMMENT_START, EDIT_COMMENT_SUCCESS,
 } from "./constants";
 
 /* Constants */
@@ -23,14 +23,17 @@ export type ActionTypesSynch =
     | CreateCommentStart
     | CreateCommentSuccess
     | EditPostStart
-    | EditPostSuccess;
+    | EditPostSuccess
+    | EditCommentStart
+    | EditCommentSuccess;
 
 export type ResultActionTypes =
     | LoadPostsSuccess
     | LoadCommentsSuccess
     | CreatePostSuccess
     | CreateCommentSuccess
-    | EditPostSuccess;
+    | EditPostSuccess
+    | EditCommentSuccess;
 
 
 /* Generic action types */
@@ -46,11 +49,11 @@ interface SimpleFSA<T, P> {
 
 /* Loading posts */
 
-export interface LoadPostsStart { type: LOAD_POSTS_START; }
+interface LoadPostsStart { type: LOAD_POSTS_START; }
 export const loadPostsStart: () => LoadPostsStart =
     () =>  ({ type: LOAD_POSTS_START });
 
-export type LoadPostsSuccess = SimpleFSA<LOAD_POSTS_SUCCESS, { posts: Post[] }>;
+type LoadPostsSuccess = SimpleFSA<LOAD_POSTS_SUCCESS, { posts: Post[] }>;
 export const loadPostsSuccess: (posts: Post[]) => LoadPostsSuccess =
     posts => ({
         type: LOAD_POSTS_SUCCESS,
@@ -60,7 +63,7 @@ export const loadPostsSuccess: (posts: Post[]) => LoadPostsSuccess =
 /* Creating new post */
 
 type PostInitFields = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">;
-export type CreatePostStart = SimpleFSA<CREATE_POST_START, PostInitFields>;
+type CreatePostStart = SimpleFSA<CREATE_POST_START, PostInitFields>;
 export const createPostStart: (payload: PostInitFields) => CreatePostStart =
     payload => ({
         type: CREATE_POST_START,
@@ -68,7 +71,7 @@ export const createPostStart: (payload: PostInitFields) => CreatePostStart =
     });
 
 
-export type CreatePostSuccess = SimpleFSA<CREATE_POST_SUCCESS, Post>;
+type CreatePostSuccess = SimpleFSA<CREATE_POST_SUCCESS, Post>;
 export const createPostSuccess: (post: Post) => CreatePostSuccess =
     post => ({
         type: CREATE_POST_SUCCESS,
@@ -78,14 +81,14 @@ export const createPostSuccess: (post: Post) => CreatePostSuccess =
 /* Edit post */
 
 type PostEditFields = Pick<Post, "id"|"title"|"body">;
-export type EditPostStart = SimpleFSA<EDIT_POST_START, PostEditFields>;
+type EditPostStart = SimpleFSA<EDIT_POST_START, PostEditFields>;
 export const editPostStart: (payload: PostEditFields) => EditPostStart =
     payload => ({
         type: EDIT_POST_START,
         payload,
     });
 
-export type EditPostSuccess = SimpleFSA<EDIT_POST_SUCCESS, Post>;
+type EditPostSuccess = SimpleFSA<EDIT_POST_SUCCESS, Post>;
 export const editPostSuccess: (post: Post) => EditPostSuccess =
     post => ({
         type: EDIT_POST_SUCCESS,
@@ -95,14 +98,14 @@ export const editPostSuccess: (post: Post) => EditPostSuccess =
 
 /* Loading comments */
 
-export type LoadCommentsStart = SimpleFSA<LOAD_COMMENTS_START, { posts: Post[]}>;
+type LoadCommentsStart = SimpleFSA<LOAD_COMMENTS_START, { posts: Post[]}>;
 export const loadCommentsStart: (posts: Post[]) => LoadCommentsStart =
     posts => ({
         type: LOAD_COMMENTS_START,
         payload: { posts },
     });
 
-export type LoadCommentsSuccess = SimpleFSA<LOAD_COMMENTS_SUCCESS, { comments: Comment[]}>;
+type LoadCommentsSuccess = SimpleFSA<LOAD_COMMENTS_SUCCESS, { comments: Comment[]}>;
 export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
     comments => ({
         type: LOAD_COMMENTS_SUCCESS,
@@ -113,7 +116,7 @@ export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
 /* Create new comment */
 
 type CommentInitFields = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
-export type CreateCommentStart = SimpleFSA<CREATE_COMMENT_START, CommentInitFields>;
+type CreateCommentStart = SimpleFSA<CREATE_COMMENT_START, CommentInitFields>;
 export const createCommentStart: (payload: CommentInitFields) => CreateCommentStart =
     payload => ({
         type: CREATE_COMMENT_START,
@@ -121,10 +124,27 @@ export const createCommentStart: (payload: CommentInitFields) => CreateCommentSt
     });
 
 
-export type CreateCommentSuccess = SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>;
+type CreateCommentSuccess = SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>;
 export const createCommentSuccess: (comment: Comment) => CreateCommentSuccess =
     comment => ({
         type: CREATE_COMMENT_SUCCESS,
+        payload: comment,
+    });
+
+/* Edit comment */
+
+type CommentEditFields = Pick<Comment, "id"|"body">;
+type EditCommentStart = SimpleFSA<EDIT_COMMENT_START, CommentEditFields>;
+export const editCommentStart: (payload: CommentEditFields) => EditCommentStart =
+    payload => ({
+        type: EDIT_COMMENT_START,
+        payload,
+    });
+
+type EditCommentSuccess = SimpleFSA<EDIT_COMMENT_SUCCESS, Comment>;
+export const editCommentSuccess: (comment: Comment) => EditCommentSuccess =
+    comment => ({
+        type: EDIT_COMMENT_SUCCESS,
         payload: comment,
     });
 
@@ -141,7 +161,7 @@ export type AsyncAppAction<R extends ResultActionTypes> = thunk.ThunkAction<
 
 /* Posts */
 
-export type LoadPostsAsync = AsyncAppAction<LoadPostsSuccess>;
+type LoadPostsAsync = AsyncAppAction<LoadPostsSuccess>;
 export const loadPostsAsync: () => LoadPostsAsync =
     () => async (dispatch, getState) => {
         dispatch(loadPostsStart());
@@ -149,7 +169,7 @@ export const loadPostsAsync: () => LoadPostsAsync =
         return dispatch(loadPostsSuccess(posts));
     };
 
-export type CreatePostAsync = AsyncAppAction<CreatePostSuccess>;
+type CreatePostAsync = AsyncAppAction<CreatePostSuccess>;
 export const createPostAsync: (
     details: Pick<PostInitFields, "title"|"body"|"author"|"category">
 ) => CreatePostAsync =
@@ -164,7 +184,7 @@ export const createPostAsync: (
         return dispatch(createPostSuccess(post));
     };
 
-export type EditPostAsync = AsyncAppAction<EditPostSuccess>;
+type EditPostAsync = AsyncAppAction<EditPostSuccess>;
 export const editPostAsync: (details: PostEditFields) => EditPostAsync =
     details => async (dispatch, getState) => {
 
@@ -177,7 +197,7 @@ export const editPostAsync: (details: PostEditFields) => EditPostAsync =
 
 /* Comments */
 
-export type LoadCommentsAsync = AsyncAppAction<LoadCommentsSuccess>;
+type LoadCommentsAsync = AsyncAppAction<LoadCommentsSuccess>;
 export const loadCommentsAsync: () => LoadCommentsAsync =
     () => async (dispatch, getState) => {
         const posts = Object.values(getState().entities.posts.byId);
@@ -194,7 +214,7 @@ export const loadCommentsAsync: () => LoadCommentsAsync =
         return dispatch(loadCommentsSuccess(comments));
     };
 
-export type CreateCommentAsync = AsyncAppAction<CreateCommentSuccess>;
+type CreateCommentAsync = AsyncAppAction<CreateCommentSuccess>;
 export const createCommentAsync: (
     details: Pick<CommentInitFields, "body"|"author"|"parentId">
 ) => CreateCommentAsync =
@@ -207,4 +227,16 @@ export const createCommentAsync: (
         dispatch(createCommentStart(commentInit));
         const comment = await api.publishComment(commentInit);
         return dispatch(createCommentSuccess(comment));
+    };
+
+type EditCommentAsync = AsyncAppAction<EditCommentSuccess>;
+export const editCommentAsync: (
+    details: Pick<CommentEditFields, "id"|"body">
+) => EditCommentAsync =
+    details => async (dispatch, getState) => {
+
+        dispatch(editCommentStart(details));
+        const comment = await api.editComment(details);
+        return dispatch(editCommentSuccess(comment));
+
     };
