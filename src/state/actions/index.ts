@@ -3,10 +3,12 @@ import * as thunk from "redux-thunk";
 import * as uuid4 from "uuid/v4";
 
 import * as api from "../../utils/api";
-
 import { ApplicationState } from "../reducers";
-
 import { Post, Comment, Category } from "../../interfaces";
+import {
+    LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
+    CREATE_POST_START, CREATE_POST_SUCCESS,
+} from "./constants";
 
 /* Constants */
 
@@ -23,23 +25,7 @@ export type ActionTypesAsync =
     | LoadCommentsAsync
     | CreatePostAsync;
 
-export type LOAD_POSTS_START = "LOAD_POSTS_START";
-export const LOAD_POSTS_START = "LOAD_POSTS_START";
 
-export type LOAD_POSTS_SUCCESS = "LOAD_POSTS_SUCCESS";
-export const LOAD_POSTS_SUCCESS = "LOAD_POSTS_SUCCESS";
-
-export type LOAD_COMMENTS_START = "LOAD_COMMENTS_START";
-export const LOAD_COMMENTS_START = "LOAD_COMMENTS_START";
-
-export type LOAD_COMMENTS_SUCCESS = "LOAD_COMMENTS_SUCCESS";
-export const LOAD_COMMENTS_SUCCESS = "LOAD_COMMENTS_SUCCESS";
-
-export type CREATE_POST_START = "CREATE_POST_START";
-export const CREATE_POST_START = "CREATE_POST_START";
-
-export type CREATE_POST_SUCCESS = "CREATE_POST_SUCCESS";
-export const CREATE_POST_SUCCESS = "CREATE_POST_SUCCESS";
 
 /* Generic action types */
 

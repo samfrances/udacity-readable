@@ -6,10 +6,10 @@ import { Post, Comment } from "../interfaces";
 import {
     ActionTypesSynch,
     ActionTypesAsync,
-    LOAD_POSTS_SUCCESS,
-    CREATE_POST_SUCCESS,
-    LOAD_COMMENTS_SUCCESS,
 } from "./actions";
+import {
+    LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, LOAD_COMMENTS_SUCCESS,
+} from "./actions/constants";
 
 interface EntityIndex<T> {
     byId: {
