@@ -12,8 +12,22 @@ import "file-loader?name=[name].[ext]!./index.html";
 const store = state.storeFactory();
 
 // Load posts and comments from server
-store
-.dispatch(actions.loadPostsAsync())
-.then(() => store.dispatch(actions.loadCommentsAsync()));
+
+(async () => {
+
+    await store.dispatch(actions.loadPostsAsync());
+
+    await store.dispatch(actions.loadCommentsAsync());
+
+    await store.dispatch(
+        actions.createPostAsync({
+            title: "my post",
+            body: "blah",
+            author: "me",
+            category: "udacity",
+        })
+    );
+
+})();
 
 export default { api, state, store, actions };

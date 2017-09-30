@@ -7,6 +7,7 @@ import {
     ActionTypesSynch,
     ActionTypesAsync,
     LOAD_POSTS_SUCCESS,
+    CREATE_POST_SUCCESS,
     LOAD_COMMENTS_SUCCESS,
 } from "./actions";
 
@@ -60,6 +61,18 @@ function posts(
                     ...action.payload.posts.map( post => ({ [post.id]: post }) )
                 ),
                 allIds: action.payload.posts.map(post => post.id),
+            };
+
+        case CREATE_POST_SUCCESS:
+            return {
+                byId: {
+                    ...state.byId,
+                    [action.payload.id]: action.payload,
+                },
+                allIds: [
+                    ...state.allIds,
+                    action.payload.id,
+                ],
             };
 
         default:
