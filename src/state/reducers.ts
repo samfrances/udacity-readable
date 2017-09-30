@@ -3,12 +3,10 @@
 import * as redux from "redux";
 
 import { Post, Comment } from "../interfaces";
+import { ActionTypesSynch } from "./actions";
 import {
-    ActionTypesSynch,
-    ActionTypesAsync,
-} from "./actions";
-import {
-    LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, LOAD_COMMENTS_SUCCESS,
+    LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS,
+    LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS,
 } from "./actions/constants";
 
 interface EntityIndex<T> {
@@ -95,6 +93,18 @@ function comments(
                     )
                 ),
                 allIds: action.payload.comments.map(post => post.id),
+            };
+
+        case CREATE_COMMENT_SUCCESS:
+            return {
+                byId: {
+                    ...state.byId,
+                    [action.payload.id]: action.payload,
+                },
+                allIds: [
+                    ...state.allIds,
+                    action.payload.id,
+                ],
             };
 
         default:

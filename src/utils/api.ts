@@ -72,7 +72,7 @@ export async function publishPost(details: PostInit): Promise<Post> {
     return data;
 }
 
-type CommentInit = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
+export type CommentInit = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
 export async function publishComment(details: CommentInit): Promise<Comment> {
 
     const res = await fetch(

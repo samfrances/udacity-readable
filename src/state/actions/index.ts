@@ -7,7 +7,7 @@ import { ApplicationState } from "../reducers";
 import { Post, Comment, Category } from "../../interfaces";
 import {
     LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
-    CREATE_POST_START, CREATE_POST_SUCCESS,
+    CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
 } from "./constants";
 
 /* Constants */
@@ -18,13 +18,15 @@ export type ActionTypesSynch =
     | LoadCommentsStart
     | LoadCommentsSuccess
     | CreatePostStart
-    | CreatePostSuccess;
+    | CreatePostSuccess
+    | CreateCommentStart
+    | CreateCommentSuccess;
 
-export type ActionTypesAsync =
-    | LoadPostsAsync
-    | LoadCommentsAsync
-    | CreatePostAsync;
-
+export type ResultActionTypes =
+    | LoadPostsSuccess
+    | LoadCommentsSuccess
+    | CreatePostSuccess
+    | CreateCommentSuccess;
 
 
 /* Generic action types */
@@ -56,6 +58,10 @@ export type LoadCommentsSuccess = SimpleFSA<
 export type CreatePostStart = SimpleFSA<CREATE_POST_START, api.PostInit>;
 
 export type CreatePostSuccess = SimpleFSA<CREATE_POST_SUCCESS, Post>;
+
+export type CreateCommentStart = SimpleFSA<CREATE_COMMENT_START, api.CommentInit>;
+
+export type CreateCommentSuccess = SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>;
 
 /* Synchronous action creators */
 
@@ -92,41 +98,42 @@ export const createPostSuccess: (post: Post) => CreatePostSuccess =
         payload: post,
     });
 
+export const createCommentStart: (payload: api.CommentInit) => CreateCommentStart =
+    payload => ({
+        type: CREATE_COMMENT_START,
+        payload,
+    });
+
+export const createCommentSuccess: (comment: Comment) => CreateCommentSuccess =
+    comment => ({
+        type: CREATE_COMMENT_SUCCESS,
+        payload: comment,
+    });
+
 /* Asynchronous action types */
 
-type dispatchFunc = redux.Dispatch<ApplicationState>;
-
-type getStateFunc = () => ApplicationState;
-
-export type LoadPostsAsync = thunk.ThunkAction<
-    Promise<LoadPostsSuccess>,
+export type AsyncAppAction<R extends ResultActionTypes> = thunk.ThunkAction<
+    Promise<R>,
     ApplicationState,
     {}
 >;
 
-export type LoadCommentsAsync = thunk.ThunkAction<
-    Promise<LoadCommentsSuccess>,
-    ApplicationState,
-    {}
->;
-
-export type CreatePostAsync = thunk.ThunkAction<
-    Promise<CreatePostSuccess>,
-    ApplicationState,
-    {}
->;
+export type LoadPostsAsync = AsyncAppAction<LoadPostsSuccess>;
+export type LoadCommentsAsync = AsyncAppAction<LoadCommentsSuccess>;
+export type CreatePostAsync = AsyncAppAction<CreatePostSuccess>;
+export type CreateCommentAsync = AsyncAppAction<CreateCommentSuccess>;
 
 /* Asynchronous action creators */
 
 export const loadPostsAsync: () => LoadPostsAsync =
-    () => async (dispatch: dispatchFunc, getState: getStateFunc) => {
+    () => async (dispatch, getState) => {
         dispatch(loadPostsStart());
         const posts = await api.allPosts();
         return dispatch(loadPostsSuccess(posts));
     };
 
 export const loadCommentsAsync: () => LoadCommentsAsync =
-    () => async (dispatch: dispatchFunc, getState: getStateFunc) => {
+    () => async (dispatch, getState) => {
         const posts = Object.values(getState().entities.posts.byId);
         dispatch(loadCommentsStart(posts));
 
@@ -141,10 +148,11 @@ export const loadCommentsAsync: () => LoadCommentsAsync =
         return dispatch(loadCommentsSuccess(comments));
     };
 
-export function createPostAsync(
-    details: Pick<Post, "title"|"body"|"author"|"category">
-): CreatePostAsync {
-    return async (dispatch: dispatchFunc, getState: getStateFunc) => {
+
+export const createPostAsync: (
+    details: Pick<api.PostInit, "title"|"body"|"author"|"category">
+) => CreatePostAsync =
+    details => async (dispatch, getState) => {
 
         const id = uuid4();
         const timestamp = Date.now();
@@ -154,4 +162,17 @@ export function createPostAsync(
         const post = await api.publishPost(postInit);
         return dispatch(createPostSuccess(post));
     };
-}
+
+export const createCommentAsync: (
+    details: Pick<api.CommentInit, "body"|"author"|"parentId">
+) => CreateCommentAsync =
+    details => async (dispatch, getState) => {
+
+        const id = uuid4();
+        const timestamp = Date.now();
+        const commentInit = {...details, id, timestamp};
+
+        dispatch(createCommentStart(commentInit));
+        const comment = await api.publishComment(commentInit);
+        return dispatch(createCommentSuccess(comment));
+    };

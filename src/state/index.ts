@@ -4,15 +4,16 @@ import { composeWithDevTools } from "redux-devtools-extension";
 
 import {
     ActionTypesSynch,
-    ActionTypesAsync,
+    AsyncAppAction,
+    ResultActionTypes,
 } from "./actions";
 
 import reducer, { ApplicationState } from "./reducers";
 
 
 export interface ApplicationStore {
-    dispatch(action: ActionTypesSynch): ActionTypesSynch;
-    dispatch(action: ActionTypesAsync): Promise<ActionTypesAsync>;
+    dispatch<A extends ActionTypesSynch>(action: A): A;
+    dispatch<R extends ResultActionTypes>(action: AsyncAppAction<R>): Promise<R>;
     getState(): ApplicationState;
     subscribe(listener: () => void): redux.Unsubscribe;
     replaceReducer(nextReducer: redux.Reducer<ApplicationState>): void;
@@ -26,3 +27,5 @@ export function storeFactory(): ApplicationStore {
 
     return redux.createStore<ApplicationState>(reducer, enhancer);
 }
+
+

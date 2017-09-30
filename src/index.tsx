@@ -19,12 +19,22 @@ const store = state.storeFactory();
 
     await store.dispatch(actions.loadCommentsAsync());
 
-    await store.dispatch(
+    const resAction = await store.dispatch(
         actions.createPostAsync({
             title: "my post",
             body: "blah",
             author: "me",
             category: "udacity",
+        })
+    );
+
+    const parentId = resAction.payload.id;
+
+    await store.dispatch(
+        actions.createCommentAsync({
+            body: "Hello, I have a comment to make",
+            author: "Commenter one",
+            parentId,
         })
     );
 
