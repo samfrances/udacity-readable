@@ -10,6 +10,7 @@ import {
     CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
     EDIT_POST_START, EDIT_POST_SUCCESS, EDIT_COMMENT_START, EDIT_COMMENT_SUCCESS,
     DELETE_POST_START, DELETE_POST_SUCCESS, DELETE_COMMENT_START, DELETE_COMMENT_SUCCESS,
+    VOTE_START, VOTE_SUCCESS,
 } from "./constants";
 
 /* Constants */
@@ -30,7 +31,10 @@ export type ActionTypesSynch =
     | DeletePostStart
     | DeletePostSuccess
     | DeleteCommentStart
-    | DeleteCommentSuccess;
+    | DeleteCommentSuccess
+    | VoteStart
+    | VoteSuccess<Post>
+    | VoteSuccess<Comment>;
 
 export type ResultActionTypes =
     | LoadPostsSuccess
@@ -40,8 +44,9 @@ export type ResultActionTypes =
     | EditPostSuccess
     | EditCommentSuccess
     | DeletePostSuccess
-    | DeleteCommentSuccess;
-
+    | DeleteCommentSuccess
+    | VoteSuccess<Post>
+    | VoteSuccess<Comment>;
 
 /* Generic action types */
 
@@ -189,6 +194,32 @@ export const deleteCommentSuccess: (comment: Comment) => DeleteCommentSuccess =
         payload: comment,
     });
 
+
+/* Vote on post or comment */
+
+interface Vote {
+    id: Post["id"]|Comment["id"];
+    entityType: "post" | "comment";
+    vote: "up" | "down";
+}
+
+type VoteStart = SimpleFSA<VOTE_START, Vote>;
+export const voteStart: (payload: Vote) => VoteStart =
+    payload => ({
+        type: VOTE_START,
+        payload,
+    });
+
+type VoteSuccess<T extends Post|Comment> = SimpleFSA<VOTE_SUCCESS, T>;
+function voteSuccess(payload: Post): VoteSuccess<Post>;
+function voteSuccess(payload: Comment): VoteSuccess<Comment>;
+function voteSuccess(payload: any) {
+    return {
+        type: VOTE_SUCCESS,
+        payload,
+    };
+}
+
 // -----------------------------------------------------------------------------
 //  Asynchronous action types and action creators
 // -----------------------------------------------------------------------------
@@ -301,3 +332,19 @@ export const deleteCommentAsync: (id: Comment["id"]) => DeleteCommentAsync =
 
     };
 
+/* Both posts and comments */
+
+export function voteAsync(vote: Vote & { entityType: "post"}): AsyncAppAction<VoteSuccess<Post>>;
+export function voteAsync(vote: Vote & { entityType: "comment"}): AsyncAppAction<VoteSuccess<Comment>>;
+export function voteAsync(vote: any): any {
+    return async (
+        dispatch: redux.Dispatch<ApplicationState>,
+        getState: () => ApplicationState,
+    ) => {
+
+        dispatch(voteStart(vote));
+        const entity = await api.castVote(vote);
+        return dispatch(voteSuccess(entity));
+
+    };
+}

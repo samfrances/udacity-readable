@@ -1,8 +1,9 @@
 import { EntityIndex, getEmptyIndex } from "./common";
-import { Post } from "../../interfaces";
+import { Post, isPost } from "../../interfaces";
 import { ActionTypesSynch } from "../actions";
 import {
     LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, EDIT_POST_SUCCESS, DELETE_POST_SUCCESS,
+    VOTE_SUCCESS,
 } from "../actions/constants";
 
 export type PostsState = EntityIndex<Post>;
@@ -52,6 +53,20 @@ export default function posts(
                     [action.payload.id]: action.payload,
                 },
             };
+
+        case VOTE_SUCCESS:
+
+            return (
+                isPost(action.payload)
+                    ? {
+                        ...state,
+                        byId: {
+                            ...state.byId,
+                            [action.payload.id]: action.payload,
+                        },
+                    }
+                    : state
+            );
 
         default:
             return state;

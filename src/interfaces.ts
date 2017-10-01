@@ -22,3 +22,10 @@ export interface Comment extends Common {
     parentId: Uuid;
     parentDeleted: boolean;
 }
+
+/**
+ * Type guard to distinguish between posts and comment
+ */
+export function isPost(entity: Post|Comment): entity is Post {
+    return Object.keys(entity).includes("title");
+}

@@ -54,6 +54,18 @@ const store = state.storeFactory();
     );
 
     await store.dispatch(
+        actions.voteAsync({ id: parentId, vote: "up", entityType: "post" })
+    );
+
+    await store.dispatch(
+        actions.voteAsync({
+            id: resCommentAction.payload.id,
+            vote: "down",
+            entityType: "comment",
+        })
+    );
+
+    await store.dispatch(
         actions.deletePostAsync(parentId)
     );
 

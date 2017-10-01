@@ -1,9 +1,9 @@
 import { EntityIndex, getEmptyIndex } from "./common";
-import { Comment, Post } from "../../interfaces";
+import { Comment, Post, isPost } from "../../interfaces";
 import { ActionTypesSynch } from "../actions";
 import {
     LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS, EDIT_COMMENT_SUCCESS,
-    DELETE_POST_SUCCESS, DELETE_COMMENT_SUCCESS,
+    DELETE_POST_SUCCESS, DELETE_COMMENT_SUCCESS, VOTE_SUCCESS,
 } from "../actions/constants";
 
 export type CommentsState = EntityIndex<Comment>;
@@ -80,6 +80,21 @@ export default function comments(
                     [action.payload.id]: action.payload,
                 },
             };
+
+        case VOTE_SUCCESS:
+
+            return (
+                isPost(action.payload)
+                    ? state
+                    : {
+                        ...state,
+                        byId: {
+                            ...state.byId,
+                            [action.payload.id]: action.payload,
+                        },
+                    }
+
+            );
 
         default:
             return state;

@@ -50,3 +50,12 @@ export const DELETE_COMMENT_START = "DELETE_COMMENT_START";
 
 export type DELETE_COMMENT_SUCCESS = "DELETE_COMMENT_SUCCESS";
 export const DELETE_COMMENT_SUCCESS = "DELETE_COMMENT_SUCCESS";
+
+
+// Both posts and comments
+
+export type VOTE_START = "VOTE_START";
+export const VOTE_START = "VOTE_START";
+
+export type VOTE_SUCCESS = "VOTE_SUCCESS";
+export const VOTE_SUCCESS = "VOTE_SUCCESS";
