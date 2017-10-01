@@ -9,6 +9,7 @@ import {
     LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
     CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
     EDIT_POST_START, EDIT_POST_SUCCESS, EDIT_COMMENT_START, EDIT_COMMENT_SUCCESS,
+    DELETE_POST_START, DELETE_POST_SUCCESS,
 } from "./constants";
 
 /* Constants */
@@ -25,7 +26,9 @@ export type ActionTypesSynch =
     | EditPostStart
     | EditPostSuccess
     | EditCommentStart
-    | EditCommentSuccess;
+    | EditCommentSuccess
+    | DeletePostStart
+    | DeletePostSuccess;
 
 export type ResultActionTypes =
     | LoadPostsSuccess
@@ -33,7 +36,8 @@ export type ResultActionTypes =
     | CreatePostSuccess
     | CreateCommentSuccess
     | EditPostSuccess
-    | EditCommentSuccess;
+    | EditCommentSuccess
+    | DeletePostSuccess;
 
 
 /* Generic action types */
@@ -92,6 +96,23 @@ type EditPostSuccess = SimpleFSA<EDIT_POST_SUCCESS, Post>;
 export const editPostSuccess: (post: Post) => EditPostSuccess =
     post => ({
         type: EDIT_POST_SUCCESS,
+        payload: post,
+    });
+
+/* Delete post */
+
+type PostDeleteFields = Pick<Post, "id">;
+type DeletePostStart = SimpleFSA<DELETE_POST_START, PostDeleteFields>;
+export const deletePostStart: (id: Post["id"]) => DeletePostStart =
+    id => ({
+        type: DELETE_POST_START,
+        payload: { id },
+    });
+
+type DeletePostSuccess = SimpleFSA<DELETE_POST_SUCCESS, Post>;
+export const deletePostSuccess: (post: Post) => DeletePostSuccess =
+    post => ({
+        type: DELETE_POST_SUCCESS,
         payload: post,
     });
 
@@ -191,6 +212,16 @@ export const editPostAsync: (details: PostEditFields) => EditPostAsync =
         dispatch(editPostStart(details));
         const post = await api.editPost(details);
         return dispatch(editPostSuccess(post));
+
+    };
+
+type DeletePostAsync = AsyncAppAction<DeletePostSuccess>;
+export const deletePostAsync: (id: Post["id"]) => DeletePostAsync =
+    id => async (dispatch, getState) => {
+
+        dispatch(deletePostStart(id));
+        const post = await api.deletePost(id);
+        return dispatch(deletePostSuccess(post));
 
     };
 

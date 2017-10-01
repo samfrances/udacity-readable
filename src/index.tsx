@@ -53,6 +53,10 @@ const store = state.storeFactory();
         })
     );
 
+    await store.dispatch(
+        actions.deletePostAsync("8xf0y6ziyjabvozdd253nd")
+    );
+
 })();
 
 export default { api, state, store, actions };

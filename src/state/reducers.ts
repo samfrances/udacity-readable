@@ -5,7 +5,7 @@ import * as redux from "redux";
 import { Post, Comment } from "../interfaces";
 import { ActionTypesSynch } from "./actions";
 import {
-    LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, EDIT_POST_SUCCESS,
+    LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, EDIT_POST_SUCCESS, DELETE_POST_SUCCESS,
     LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS, EDIT_COMMENT_SUCCESS,
 } from "./actions/constants";
 
@@ -75,11 +75,20 @@ function posts(
 
         case EDIT_POST_SUCCESS:
             return {
+                ...state,
                 byId: {
                     ...state.byId,
                     [action.payload.id]: action.payload,
                 },
-                allIds: state.allIds,
+            };
+
+        case DELETE_POST_SUCCESS:
+            return {
+                ...state,
+                byId: {
+                    ...state.byId,
+                    [action.payload.id]: action.payload,
+                },
             };
 
         default:
@@ -118,11 +127,35 @@ function comments(
 
         case EDIT_COMMENT_SUCCESS:
             return {
+                ...state,
                 byId: {
                     ...state.byId,
                     [action.payload.id]: action.payload,
                 },
-                allIds: state.allIds,
+            };
+
+        case DELETE_POST_SUCCESS:
+
+            const orphanCommentsUpdated =
+                getCommentsByPostId(state, action.payload.id)
+                .map<Comment>(comment => ({ ...comment, parentDeleted: true }));
+
+            const updatedOrphansById: { [id: string]: Comment } =
+                Object.assign({},
+                    ...(
+                        orphanCommentsUpdated
+                        .map(comment => ({
+                            [comment.id]: comment,
+                        }))
+                    )
+                );
+
+            return {
+                ...state,
+                byId: {
+                    ...state.byId,
+                    ...updatedOrphansById,
+                },
             };
 
         default:
@@ -131,6 +164,11 @@ function comments(
     }
 
 }
+
+const getCommentsByPostId: (state: CommentsState, id: Post["id"]) => Comment[] =
+    (state, id) =>
+        [...Object.values(state.byId)]
+        .filter(comment => comment.parentId === id);
 
 const entities = redux.combineReducers<EntitiesState>({ posts, comments });
 
