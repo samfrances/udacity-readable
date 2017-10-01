@@ -94,10 +94,12 @@ export async function publishComment(
 
 interface Vote {
     id: Uuid;
-    entityType: "post" | "comment";
+    entityType: "post"|"comment";
     vote: "up" | "down";
 }
-async function castVote({ id, entityType, vote }: Vote): Promise<Post|Comment> {
+function castVote(vote: Vote & { entityType: "post" }): Promise<Post>;
+function castVote(vote: Vote & { entityType: "comment"}): Promise<Comment>;
+async function castVote({id, entityType, vote}: any) {
 
     const res = await fetch(
         `${api}/${entityType}s/${id}`,
@@ -108,7 +110,11 @@ async function castVote({ id, entityType, vote }: Vote): Promise<Post|Comment> {
         }
     );
 
-    const data = await res.json();
+    const data: Post|Comment = await res.json();
+
+    function isPost(entity: Post|Comment): entity is Post {
+        return Object.keys(entity).includes("title");
+    }
 
     return data;
 
