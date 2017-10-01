@@ -97,7 +97,7 @@ interface Vote {
     entityType: "post" | "comment";
     vote: "up" | "down";
 }
-export async function castVote({ id, entityType, vote }: Vote): Promise<Post> {
+async function castVote({ id, entityType, vote }: Vote): Promise<Post|Comment> {
 
     const res = await fetch(
         `${api}/${entityType}s/${id}`,
@@ -108,9 +108,24 @@ export async function castVote({ id, entityType, vote }: Vote): Promise<Post> {
         }
     );
 
-    const data: Post  = await res.json();
+    const data = await res.json();
 
     return data;
+
+}
+
+export async function voteOnPost({
+    id,
+    vote,
+}: Pick<Vote, "id"|"vote">): Promise<Post> {
+    return await castVote({ id, entityType: "post", vote }) as Post;
+}
+
+export async function voteOnComment({
+    id,
+    vote,
+}: Pick<Vote, "id"|"vote">): Promise<Comment> {
+    return await castVote({ id, entityType: "comment", vote }) as Comment;
 }
 
 /* DELETE functions */
