@@ -3,7 +3,7 @@ import { Comment, Post } from "../../interfaces";
 import { ActionTypesSynch } from "../actions";
 import {
     LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS, EDIT_COMMENT_SUCCESS,
-    DELETE_POST_SUCCESS,
+    DELETE_POST_SUCCESS, DELETE_COMMENT_SUCCESS,
 } from "../actions/constants";
 
 export type CommentsState = EntityIndex<Comment>;
@@ -69,6 +69,15 @@ export default function comments(
                 byId: {
                     ...state.byId,
                     ...updatedOrphansById,
+                },
+            };
+
+        case DELETE_COMMENT_SUCCESS:
+            return {
+                ...state,
+                byId: {
+                    ...state.byId,
+                    [action.payload.id]: action.payload,
                 },
             };
 

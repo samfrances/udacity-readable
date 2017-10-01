@@ -54,7 +54,11 @@ const store = state.storeFactory();
     );
 
     await store.dispatch(
-        actions.deletePostAsync("8xf0y6ziyjabvozdd253nd")
+        actions.deletePostAsync(parentId)
+    );
+
+    await store.dispatch(
+        actions.deleteCommentAsync(resCommentAction.payload.id)
     );
 
 })();

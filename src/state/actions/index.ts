@@ -9,7 +9,7 @@ import {
     LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
     CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
     EDIT_POST_START, EDIT_POST_SUCCESS, EDIT_COMMENT_START, EDIT_COMMENT_SUCCESS,
-    DELETE_POST_START, DELETE_POST_SUCCESS,
+    DELETE_POST_START, DELETE_POST_SUCCESS, DELETE_COMMENT_START, DELETE_COMMENT_SUCCESS,
 } from "./constants";
 
 /* Constants */
@@ -28,7 +28,9 @@ export type ActionTypesSynch =
     | EditCommentStart
     | EditCommentSuccess
     | DeletePostStart
-    | DeletePostSuccess;
+    | DeletePostSuccess
+    | DeleteCommentStart
+    | DeleteCommentSuccess;
 
 export type ResultActionTypes =
     | LoadPostsSuccess
@@ -37,7 +39,8 @@ export type ResultActionTypes =
     | CreateCommentSuccess
     | EditPostSuccess
     | EditCommentSuccess
-    | DeletePostSuccess;
+    | DeletePostSuccess
+    | DeleteCommentSuccess;
 
 
 /* Generic action types */
@@ -169,6 +172,22 @@ export const editCommentSuccess: (comment: Comment) => EditCommentSuccess =
         payload: comment,
     });
 
+/* Delete comment */
+
+type CommentDeleteFields = Pick<Comment, "id">;
+type DeleteCommentStart = SimpleFSA<DELETE_COMMENT_START, CommentDeleteFields>;
+export const deleteCommentStart: (id: Comment["id"]) => DeleteCommentStart =
+    id => ({
+        type: DELETE_COMMENT_START,
+        payload: { id },
+    });
+
+type DeleteCommentSuccess = SimpleFSA<DELETE_COMMENT_SUCCESS, Comment>;
+export const deleteCommentSuccess: (comment: Comment) => DeleteCommentSuccess =
+    comment => ({
+        type: DELETE_COMMENT_SUCCESS,
+        payload: comment,
+    });
 
 // -----------------------------------------------------------------------------
 //  Asynchronous action types and action creators
@@ -271,3 +290,14 @@ export const editCommentAsync: (
         return dispatch(editCommentSuccess(comment));
 
     };
+
+type DeleteCommentAsync = AsyncAppAction<DeleteCommentSuccess>;
+export const deleteCommentAsync: (id: Comment["id"]) => DeleteCommentAsync =
+    id => async (dispatch, getState) => {
+
+        dispatch(deleteCommentStart(id));
+        const comment = await api.deleteComment(id);
+        return dispatch(deleteCommentSuccess(comment));
+
+    };
+
