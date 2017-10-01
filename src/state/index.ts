@@ -8,7 +8,7 @@ import {
     ResultActionTypes,
 } from "./actions";
 
-import reducer, { ApplicationState } from "./reducers";
+import reducer, { ApplicationState, getInitialState } from "./reducers";
 
 
 export interface ApplicationStore {
@@ -23,9 +23,11 @@ export interface ApplicationStore {
 
 export function storeFactory(): ApplicationStore {
 
+    const initialState = getInitialState();
+
     const enhancer = composeWithDevTools(redux.applyMiddleware(thunk));
 
-    return redux.createStore<ApplicationState>(reducer, enhancer);
+    return redux.createStore<ApplicationState>(reducer, initialState, enhancer);
 }
 
 
