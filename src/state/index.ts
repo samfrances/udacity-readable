@@ -2,26 +2,15 @@ import * as redux from "redux";
 import thunk from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
 
-import {
-    ActionTypesSynch,
-    AsyncAppAction,
-    ResultActionTypes,
-} from "./actions";
+import { ActionTypesSynch } from "./actions";
+import { ActionTypedStore } from "./helpers";
 
 import reducer, { ApplicationState, getInitialState } from "./reducers";
 
 
-export interface ApplicationStore {
-    dispatch<A extends ActionTypesSynch>(action: A): A;
-    dispatch<R extends ResultActionTypes>(action: AsyncAppAction<R>): Promise<R>;
-    getState(): ApplicationState;
-    subscribe(listener: () => void): redux.Unsubscribe;
-    replaceReducer(nextReducer: redux.Reducer<ApplicationState>): void;
-}
-
 /* Store creation */
 
-export function storeFactory(): ApplicationStore {
+export function storeFactory(): ActionTypedStore<ActionTypesSynch, ApplicationState> {
 
     const initialState = getInitialState();
 
@@ -29,5 +18,3 @@ export function storeFactory(): ApplicationStore {
 
     return redux.createStore<ApplicationState>(reducer, initialState, enhancer);
 }
-
-

@@ -61,9 +61,9 @@ interface SimpleFSA<T, P> {
 
 /* Loading posts */
 
-interface LoadPostsStart { type: LOAD_POSTS_START; }
+interface LoadPostsStart { type: LOAD_POSTS_START; payload: undefined; }
 export const loadPostsStart: () => LoadPostsStart =
-    () =>  ({ type: LOAD_POSTS_START });
+    () =>  ({ type: LOAD_POSTS_START, payload: undefined });
 
 type LoadPostsSuccess = SimpleFSA<LOAD_POSTS_SUCCESS, { posts: Post[] }>;
 export const loadPostsSuccess: (posts: Post[]) => LoadPostsSuccess =
