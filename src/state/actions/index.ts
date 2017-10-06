@@ -13,6 +13,8 @@ import {
     VOTE_START, VOTE_SUCCESS,
 } from "./constants";
 
+import { ActionTypedThunkAction } from "../index";
+
 /* Constants */
 
 export type ActionTypesSynch =
@@ -224,7 +226,8 @@ function voteSuccess(payload: any) {
 //  Asynchronous action types and action creators
 // -----------------------------------------------------------------------------
 
-export type AsyncAppAction<R extends ResultActionTypes> = thunk.ThunkAction<
+export type AsyncAppAction<R extends ResultActionTypes> = ActionTypedThunkAction<
+    ActionTypesSynch,
     Promise<R>,
     ApplicationState,
     {}

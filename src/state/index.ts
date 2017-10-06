@@ -10,18 +10,31 @@ import {
 
 import reducer, { ApplicationState, getInitialState } from "./reducers";
 
+export interface ActionTypedDispatch<ACTION_TYPES> {
+    <A extends ACTION_TYPES>(action: A): A;
+}
 
-export interface ApplicationStore {
-    dispatch<A extends ActionTypesSynch>(action: A): A;
-    dispatch<R extends ResultActionTypes>(action: AsyncAppAction<R>): Promise<R>;
-    getState(): ApplicationState;
+export interface ActionTypedDispatch<ACTION_TYPES> {
+    <R, S, E>(asyncAction: ActionTypedThunkAction<ACTION_TYPES, R, S, E>): R;
+}
+
+export type ActionTypedThunkAction<A, R, S, E> = (
+    dispatch: ActionTypedDispatch<A>,
+    getState: () => S,
+    extraArgument: E
+) => R;
+
+export interface ActionTypedStore<ACTION_TYPES, STATE> {
+    dispatch: ActionTypedDispatch<ACTION_TYPES>;
+    getState(): STATE;
     subscribe(listener: () => void): redux.Unsubscribe;
     replaceReducer(nextReducer: redux.Reducer<ApplicationState>): void;
 }
 
+
 /* Store creation */
 
-export function storeFactory(): ApplicationStore {
+export function storeFactory(): ActionTypedStore<ActionTypesSynch, ApplicationState> {
 
     const initialState = getInitialState();
 
@@ -29,5 +42,3 @@ export function storeFactory(): ApplicationStore {
 
     return redux.createStore<ApplicationState>(reducer, initialState, enhancer);
 }
-
-
