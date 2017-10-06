@@ -36,7 +36,31 @@ export interface SimpleFSA<T, P> {
 }
 
 // -----------------------------------------------------------------------------
-//  Thunk helpers
+//  Synchronous action helpers
+// -----------------------------------------------------------------------------
+
+export type SimpleFSACreator<T, D, P> =
+    (detail: D) => SimpleFSA<T, P>;
+
+export function simpleFSACreatorWithTransform<T, D, P>(
+    type: T,
+    transform: ((detail: D) => P)
+): SimpleFSACreator<T, D, P> {
+
+    return (detail: D) => ({
+        type,
+        payload: transform(detail),
+    });
+
+}
+
+export function simpleFSACreator<T, P>(type: T) {
+    return simpleFSACreatorWithTransform<T, P, P>(type, p => p);
+}
+
+
+// -----------------------------------------------------------------------------
+//  Async action ("thunk") helpers
 // -----------------------------------------------------------------------------
 
 
