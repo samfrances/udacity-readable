@@ -13,6 +13,8 @@ import {
     VOTE_START, VOTE_SUCCESS,
 } from "./constants";
 
+import { SimpleFSA } from "../helpers";
+
 /* Constants */
 
 export type ActionTypesSynch =
@@ -48,12 +50,6 @@ export type ResultActionTypes =
     | VoteSuccess<Post>
     | VoteSuccess<Comment>;
 
-/* Generic action types */
-
-interface SimpleFSA<T, P> {
-    type: T;
-    payload: P;
-}
 
 // -----------------------------------------------------------------------------
 //  Synchronous actions, action types and action creators
