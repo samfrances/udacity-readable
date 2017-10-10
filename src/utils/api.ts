@@ -23,7 +23,7 @@ export async function postsByCategory(category: Category) {
     )).json();
 }
 
-export async function allPosts() {
+export async function allPosts(): Promise<Post[]> {
     return await (await fetch(
         `${api}/posts`,
         { headers }
@@ -122,16 +122,16 @@ export async function castVote({id, entityType, vote}: any) {
 
 /* DELETE functions */
 
-export async function deletePost(id: Uuid): Promise<Post> {
+export async function deletePost(args: Pick<Post, "id">): Promise<Post> {
 
-    const res = await fetch(`${api}/posts/${id}`, { method: "delete", headers });
+    const res = await fetch(`${api}/posts/${args.id}`, { method: "delete", headers });
 
     return await res.json();
 }
 
-export async function deleteComment(id: Uuid): Promise<Comment> {
+export async function deleteComment(args: Pick<Comment, "id">): Promise<Comment> {
 
-    const res = await fetch(`${api}/comments/${id}`, { method: "delete", headers });
+    const res = await fetch(`${api}/comments/${args.id}`, { method: "delete", headers });
 
     return await res.json();
 }

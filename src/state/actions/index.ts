@@ -107,10 +107,10 @@ export const editPostSuccess: (post: Post) => EditPostSuccess =
 
 type PostDeleteFields = Pick<Post, "id">;
 type DeletePostStart = SimpleFSA<DELETE_POST_START, PostDeleteFields>;
-export const deletePostStart: (id: Post["id"]) => DeletePostStart =
-    id => ({
+export const deletePostStart: (payload: Pick<Post, "id">) => DeletePostStart =
+    payload => ({
         type: DELETE_POST_START,
-        payload: { id },
+        payload,
     });
 
 type DeletePostSuccess = SimpleFSA<DELETE_POST_SUCCESS, Post>;
@@ -177,10 +177,10 @@ export const editCommentSuccess: (comment: Comment) => EditCommentSuccess =
 
 type CommentDeleteFields = Pick<Comment, "id">;
 type DeleteCommentStart = SimpleFSA<DELETE_COMMENT_START, CommentDeleteFields>;
-export const deleteCommentStart: (id: Comment["id"]) => DeleteCommentStart =
-    id => ({
+export const deleteCommentStart: (payload: Pick<Comment, "id">) => DeleteCommentStart =
+    payload => ({
         type: DELETE_COMMENT_START,
-        payload: { id },
+        payload,
     });
 
 type DeleteCommentSuccess = SimpleFSA<DELETE_COMMENT_SUCCESS, Comment>;
@@ -262,11 +262,11 @@ export const editPostAsync: (details: PostEditFields) => EditPostAsync =
     };
 
 type DeletePostAsync = AsyncAppAction<DeletePostSuccess>;
-export const deletePostAsync: (id: Post["id"]) => DeletePostAsync =
-    id => async (dispatch, getState) => {
+export const deletePostAsync: (details: Pick<Post, "id">) => DeletePostAsync =
+    details => async (dispatch, getState) => {
 
-        dispatch(deletePostStart(id));
-        const post = await api.deletePost(id);
+        dispatch(deletePostStart(details));
+        const post = await api.deletePost(details);
         return dispatch(deletePostSuccess(post));
 
     };
@@ -319,11 +319,11 @@ export const editCommentAsync: (
     };
 
 type DeleteCommentAsync = AsyncAppAction<DeleteCommentSuccess>;
-export const deleteCommentAsync: (id: Comment["id"]) => DeleteCommentAsync =
-    id => async (dispatch, getState) => {
+export const deleteCommentAsync: (details: Pick<Comment, "id">) => DeleteCommentAsync =
+    details => async (dispatch, getState) => {
 
-        dispatch(deleteCommentStart(id));
-        const comment = await api.deleteComment(id);
+        dispatch(deleteCommentStart(details));
+        const comment = await api.deleteComment(details);
         return dispatch(deleteCommentSuccess(comment));
 
     };
