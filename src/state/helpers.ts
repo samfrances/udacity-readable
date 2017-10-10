@@ -35,6 +35,12 @@ export interface SimpleFSA<T, P> {
     payload: P;
 }
 
+export interface SimpleErrorFSA<T, P> {
+    type: T;
+    payload: P;
+    error: true;
+}
+
 // -----------------------------------------------------------------------------
 //  Synchronous action helpers
 // -----------------------------------------------------------------------------
@@ -58,6 +64,11 @@ export function simpleFSACreator<T, P>(type: T) {
     return simpleFSACreatorWithTransform<T, P, P>(type, p => p);
 }
 
+export function simpleErrorFSACreator<T, P>(
+    type: T
+): (payload: P) => SimpleErrorFSA<T, P> {
+    return (payload: P) => ({ type, payload, error: true });
+}
 
 // -----------------------------------------------------------------------------
 //  Async action ("thunk") helpers

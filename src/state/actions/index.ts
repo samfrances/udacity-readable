@@ -6,16 +6,22 @@ import * as api from "../../utils/api";
 import { ApplicationState } from "../reducers";
 import { Post, Comment, Category } from "../../interfaces";
 import {
-    LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS,
-    CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS,
-    EDIT_POST_START, EDIT_POST_SUCCESS, EDIT_COMMENT_START, EDIT_COMMENT_SUCCESS,
-    DELETE_POST_START, DELETE_POST_SUCCESS, DELETE_COMMENT_START, DELETE_COMMENT_SUCCESS,
-    VOTE_START, VOTE_SUCCESS,
+    LOAD_POSTS_START, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAILURE,
+    LOAD_COMMENTS_START, LOAD_COMMENTS_SUCCESS, LOAD_COMMENTS_FAILURE,
+    CREATE_POST_START, CREATE_POST_SUCCESS, CREATE_POST_FAILURE,
+    CREATE_COMMENT_START, CREATE_COMMENT_SUCCESS, CREATE_COMMENT_FAILURE,
+    EDIT_POST_START, EDIT_POST_SUCCESS, EDIT_POST_FAILURE,
+    EDIT_COMMENT_START, EDIT_COMMENT_SUCCESS, EDIT_COMMENT_FAILURE,
+    DELETE_POST_START, DELETE_POST_SUCCESS, DELETE_POST_FAILURE,
+    DELETE_COMMENT_START, DELETE_COMMENT_SUCCESS, DELETE_COMMENT_FAILURE,
+    VOTE_START, VOTE_SUCCESS, VOTE_FAILURE,
 } from "./constants";
 
 import {
     SimpleFSA,
+    SimpleErrorFSA,
     simpleFSACreator,
+    simpleErrorFSACreator,
     simpleFSACreatorWithTransform,
     makeThunkCreatorFactory,
     ActionTypedThunkAction,
@@ -27,36 +33,33 @@ import {
 export type ActionTypes =
     | SimpleFSA<LOAD_POSTS_START, undefined>
     | SimpleFSA<LOAD_POSTS_SUCCESS, Post[]>
+    | SimpleErrorFSA<LOAD_POSTS_FAILURE, undefined>
     | SimpleFSA<LOAD_COMMENTS_START, Post[]>
     | SimpleFSA<LOAD_COMMENTS_SUCCESS, Comment[]>
+    | SimpleErrorFSA<LOAD_COMMENTS_FAILURE, Post[]>
     | SimpleFSA<CREATE_POST_START, PostInitFields>
     | SimpleFSA<CREATE_POST_SUCCESS, Post>
+    | SimpleErrorFSA<CREATE_POST_FAILURE, Post>
     | SimpleFSA<CREATE_COMMENT_START, CommentInitFields>
     | SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>
+    | SimpleErrorFSA<CREATE_COMMENT_FAILURE, Comment>
     | SimpleFSA<EDIT_POST_START, PostEditFields>
     | SimpleFSA<EDIT_POST_SUCCESS, Post>
+    | SimpleErrorFSA<EDIT_POST_FAILURE, Post>
     | SimpleFSA<EDIT_COMMENT_START, CommentEditFields>
     | SimpleFSA<EDIT_COMMENT_SUCCESS, Comment>
+    | SimpleErrorFSA<EDIT_COMMENT_FAILURE, Comment>
     | SimpleFSA<DELETE_POST_START, PostDeleteFields>
     | SimpleFSA<DELETE_POST_SUCCESS, Post>
+    | SimpleErrorFSA<DELETE_POST_FAILURE, Post>
     | SimpleFSA<DELETE_COMMENT_START, CommentDeleteFields>
     | SimpleFSA<DELETE_COMMENT_SUCCESS, Comment>
+    | SimpleErrorFSA<DELETE_COMMENT_FAILURE, Comment>
     | SimpleFSA<VOTE_START, Vote>
     | VoteSuccess<Post>
-    | VoteSuccess<Comment>;
-
-// export type ResultActionTypes =
-//     | LoadPostsSuccess
-//     | LoadCommentsSuccess
-//     | CreatePostSuccess
-//     | CreateCommentSuccess
-//     | EditPostSuccess
-//     | EditCommentSuccess
-//     | DeletePostSuccess
-//     | DeleteCommentSuccess
-//     | VoteSuccess<Post>
-//     | VoteSuccess<Comment>;
-
+    | VoteSuccess<Comment>
+    | VoteFailure<Post>
+    | VoteFailure<Comment>;
 
 // -----------------------------------------------------------------------------
 //  Synchronous actions, action types and action creators
@@ -69,6 +72,9 @@ export const loadPostsStart =
 
 export const loadPostsSuccess =
     simpleFSACreator<LOAD_POSTS_SUCCESS, Post[]>(LOAD_POSTS_SUCCESS);
+
+export const loadPostsFailure =
+    () => simpleErrorFSACreator<LOAD_POSTS_FAILURE, undefined>(LOAD_POSTS_FAILURE)(undefined);
 
 /* Creating new post */
 
@@ -86,6 +92,9 @@ export const createPostStart =
 export const createPostSuccess =
     simpleFSACreator<CREATE_POST_SUCCESS, Post>(CREATE_POST_SUCCESS);
 
+export const createPostFailure =
+    simpleErrorFSACreator<CREATE_POST_FAILURE, Post>(CREATE_POST_FAILURE);
+
 /* Edit post */
 
 type PostEditFields = Pick<Post, "id"|"title"|"body">;
@@ -94,6 +103,9 @@ export const editPostStart =
 
 export const editPostSuccess =
     simpleFSACreator<EDIT_POST_START, Post>(EDIT_POST_START);
+
+export const editPostFailure =
+    simpleErrorFSACreator<EDIT_POST_FAILURE, Post>(EDIT_POST_FAILURE);
 
 /* Delete post */
 
@@ -104,6 +116,9 @@ export const deletePostStart =
 export const deletePostSuccess =
     simpleFSACreator<DELETE_POST_SUCCESS, Post>(DELETE_POST_SUCCESS);
 
+export const deletePostFailure =
+    simpleErrorFSACreator<DELETE_POST_FAILURE, Post>(DELETE_POST_FAILURE);
+
 /* Loading comments */
 
 export const loadCommentsStart =
@@ -111,6 +126,9 @@ export const loadCommentsStart =
 
 export const loadCommentsSuccess =
     simpleFSACreator<LOAD_COMMENTS_SUCCESS, Comment[]>(LOAD_COMMENTS_SUCCESS);
+
+export const loadCommentsFailure =
+    simpleErrorFSACreator<LOAD_COMMENTS_FAILURE, Post[]>(LOAD_COMMENTS_FAILURE);
 
 /* Create new comment */
 
@@ -128,6 +146,9 @@ export const createCommentStart =
 export const createCommentSuccess =
     simpleFSACreator<CREATE_COMMENT_SUCCESS, Comment>(CREATE_COMMENT_SUCCESS);
 
+export const createCommentFailure =
+    simpleErrorFSACreator<CREATE_COMMENT_FAILURE, Comment>(CREATE_COMMENT_FAILURE);
+
 /* Edit comment */
 
 type CommentEditFields = Pick<Comment, "id"|"body">;
@@ -137,6 +158,9 @@ export const editCommentStart =
 export const editCommentSuccess =
     simpleFSACreator<EDIT_COMMENT_SUCCESS, Comment>(EDIT_COMMENT_SUCCESS);
 
+export const editCommentFailure =
+    simpleErrorFSACreator<EDIT_COMMENT_FAILURE, Comment>(EDIT_COMMENT_FAILURE);
+
 /* Delete comment */
 
 type CommentDeleteFields = Pick<Comment, "id">;
@@ -145,6 +169,9 @@ export const deleteCommentStart =
 
 export const deleteCommentSuccess =
     simpleFSACreator<DELETE_COMMENT_SUCCESS, Comment>(DELETE_COMMENT_SUCCESS);
+
+export const deleteCommentFailure =
+    simpleErrorFSACreator<DELETE_COMMENT_FAILURE, Comment>(DELETE_COMMENT_FAILURE);
 
 /* Vote on post or comment */
 
@@ -164,6 +191,17 @@ function voteSuccess(payload: any) {
     return {
         type: VOTE_SUCCESS,
         payload,
+    };
+}
+
+type VoteFailure<T extends Post|Comment> = SimpleErrorFSA<VOTE_FAILURE, T>;
+function voteFailure(payload: Post): VoteFailure<Post>;
+function voteFailure(payload: Comment): VoteFailure<Comment>;
+function voteFailure(payload: any) {
+    return {
+        type: VOTE_FAILURE,
+        payload,
+        error: true,
     };
 }
 
