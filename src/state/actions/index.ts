@@ -13,42 +13,49 @@ import {
     VOTE_START, VOTE_SUCCESS,
 } from "./constants";
 
-import { SimpleFSA } from "../helpers";
+import {
+    SimpleFSA,
+    simpleFSACreator,
+    simpleFSACreatorWithTransform,
+    makeThunkCreatorFactory,
+    ActionTypedThunkAction,
+    ActionTypedDispatch,
+} from "../helpers";
 
 /* Constants */
 
-export type ActionTypesSynch =
-    | LoadPostsStart
-    | LoadPostsSuccess
-    | LoadCommentsStart
-    | LoadCommentsSuccess
-    | CreatePostStart
-    | CreatePostSuccess
-    | CreateCommentStart
-    | CreateCommentSuccess
-    | EditPostStart
-    | EditPostSuccess
-    | EditCommentStart
-    | EditCommentSuccess
-    | DeletePostStart
-    | DeletePostSuccess
-    | DeleteCommentStart
-    | DeleteCommentSuccess
-    | VoteStart
+export type ActionTypes =
+    | SimpleFSA<LOAD_POSTS_START, undefined>
+    | SimpleFSA<LOAD_POSTS_SUCCESS, Post[]>
+    | SimpleFSA<LOAD_COMMENTS_START, Post[]>
+    | SimpleFSA<LOAD_COMMENTS_SUCCESS, Comment[]>
+    | SimpleFSA<CREATE_POST_START, PostInitFields>
+    | SimpleFSA<CREATE_POST_SUCCESS, Post>
+    | SimpleFSA<CREATE_COMMENT_START, CommentInitFields>
+    | SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>
+    | SimpleFSA<EDIT_POST_START, PostEditFields>
+    | SimpleFSA<EDIT_POST_SUCCESS, Post>
+    | SimpleFSA<EDIT_COMMENT_START, CommentEditFields>
+    | SimpleFSA<EDIT_COMMENT_SUCCESS, Comment>
+    | SimpleFSA<DELETE_POST_START, PostDeleteFields>
+    | SimpleFSA<DELETE_POST_SUCCESS, Post>
+    | SimpleFSA<DELETE_COMMENT_START, CommentDeleteFields>
+    | SimpleFSA<DELETE_COMMENT_SUCCESS, Comment>
+    | SimpleFSA<VOTE_START, Vote>
     | VoteSuccess<Post>
     | VoteSuccess<Comment>;
 
-export type ResultActionTypes =
-    | LoadPostsSuccess
-    | LoadCommentsSuccess
-    | CreatePostSuccess
-    | CreateCommentSuccess
-    | EditPostSuccess
-    | EditCommentSuccess
-    | DeletePostSuccess
-    | DeleteCommentSuccess
-    | VoteSuccess<Post>
-    | VoteSuccess<Comment>;
+// export type ResultActionTypes =
+//     | LoadPostsSuccess
+//     | LoadCommentsSuccess
+//     | CreatePostSuccess
+//     | CreateCommentSuccess
+//     | EditPostSuccess
+//     | EditCommentSuccess
+//     | DeletePostSuccess
+//     | DeleteCommentSuccess
+//     | VoteSuccess<Post>
+//     | VoteSuccess<Comment>;
 
 
 // -----------------------------------------------------------------------------
@@ -57,139 +64,87 @@ export type ResultActionTypes =
 
 /* Loading posts */
 
-interface LoadPostsStart { type: LOAD_POSTS_START; payload: undefined; }
-export const loadPostsStart: () => LoadPostsStart =
-    () =>  ({ type: LOAD_POSTS_START, payload: undefined });
+export const loadPostsStart =
+    () => simpleFSACreator<LOAD_POSTS_START, undefined>(LOAD_POSTS_START)(undefined);
 
-type LoadPostsSuccess = SimpleFSA<LOAD_POSTS_SUCCESS, { posts: Post[] }>;
-export const loadPostsSuccess: (posts: Post[]) => LoadPostsSuccess =
-    posts => ({
-        type: LOAD_POSTS_SUCCESS,
-        payload: { posts },
-    });
+export const loadPostsSuccess =
+    simpleFSACreator<LOAD_POSTS_SUCCESS, Post[]>(LOAD_POSTS_SUCCESS);
 
 /* Creating new post */
 
 type PostInitFields = Pick<Post, "id"|"timestamp"|"title"|"body"|"author"|"category">;
-type CreatePostStart = SimpleFSA<CREATE_POST_START, PostInitFields>;
-export const createPostStart: (payload: PostInitFields) => CreatePostStart =
-    payload => ({
-        type: CREATE_POST_START,
-        payload,
-    });
+export const createPostStart =
+    simpleFSACreatorWithTransform<
+        CREATE_POST_START,
+        Pick<PostInitFields, "title"|"body"|"author"|"category">,
+        PostInitFields
+    >(
+        CREATE_POST_START,
+        details => ({...details, id: uuid4(), timestamp: Date.now()})
+    );
 
-
-type CreatePostSuccess = SimpleFSA<CREATE_POST_SUCCESS, Post>;
-export const createPostSuccess: (post: Post) => CreatePostSuccess =
-    post => ({
-        type: CREATE_POST_SUCCESS,
-        payload: post,
-    });
+export const createPostSuccess =
+    simpleFSACreator<CREATE_POST_SUCCESS, Post>(CREATE_POST_SUCCESS);
 
 /* Edit post */
 
 type PostEditFields = Pick<Post, "id"|"title"|"body">;
-type EditPostStart = SimpleFSA<EDIT_POST_START, PostEditFields>;
-export const editPostStart: (payload: PostEditFields) => EditPostStart =
-    payload => ({
-        type: EDIT_POST_START,
-        payload,
-    });
+export const editPostStart =
+    simpleFSACreator<EDIT_POST_START, PostEditFields>(EDIT_POST_START);
 
-type EditPostSuccess = SimpleFSA<EDIT_POST_SUCCESS, Post>;
-export const editPostSuccess: (post: Post) => EditPostSuccess =
-    post => ({
-        type: EDIT_POST_SUCCESS,
-        payload: post,
-    });
+export const editPostSuccess =
+    simpleFSACreator<EDIT_POST_START, Post>(EDIT_POST_START);
 
 /* Delete post */
 
 type PostDeleteFields = Pick<Post, "id">;
-type DeletePostStart = SimpleFSA<DELETE_POST_START, PostDeleteFields>;
-export const deletePostStart: (payload: Pick<Post, "id">) => DeletePostStart =
-    payload => ({
-        type: DELETE_POST_START,
-        payload,
-    });
+export const deletePostStart =
+    simpleFSACreator<DELETE_POST_START, PostDeleteFields>(DELETE_POST_START);
 
-type DeletePostSuccess = SimpleFSA<DELETE_POST_SUCCESS, Post>;
-export const deletePostSuccess: (post: Post) => DeletePostSuccess =
-    post => ({
-        type: DELETE_POST_SUCCESS,
-        payload: post,
-    });
-
+export const deletePostSuccess =
+    simpleFSACreator<DELETE_POST_SUCCESS, Post>(DELETE_POST_SUCCESS);
 
 /* Loading comments */
 
-type LoadCommentsStart = SimpleFSA<LOAD_COMMENTS_START, { posts: Post[]}>;
-export const loadCommentsStart: (posts: Post[]) => LoadCommentsStart =
-    posts => ({
-        type: LOAD_COMMENTS_START,
-        payload: { posts },
-    });
+export const loadCommentsStart =
+    simpleFSACreator<LOAD_COMMENTS_START, Post[]>(LOAD_COMMENTS_START);
 
-type LoadCommentsSuccess = SimpleFSA<LOAD_COMMENTS_SUCCESS, { comments: Comment[]}>;
-export const loadCommentsSuccess: (comments: Comment[]) => LoadCommentsSuccess =
-    comments => ({
-        type: LOAD_COMMENTS_SUCCESS,
-        payload: { comments },
-    });
-
+export const loadCommentsSuccess =
+    simpleFSACreator<LOAD_COMMENTS_SUCCESS, Comment[]>(LOAD_COMMENTS_SUCCESS);
 
 /* Create new comment */
 
 type CommentInitFields = Pick<Comment, "id"|"timestamp"|"body"|"author"|"parentId">;
-type CreateCommentStart = SimpleFSA<CREATE_COMMENT_START, CommentInitFields>;
-export const createCommentStart: (payload: CommentInitFields) => CreateCommentStart =
-    payload => ({
-        type: CREATE_COMMENT_START,
-        payload,
-    });
+export const createCommentStart =
+    simpleFSACreatorWithTransform<
+        CREATE_COMMENT_START,
+        Pick<CommentInitFields, "body"|"author"|"parentId">,
+        CommentInitFields
+    >(
+        CREATE_COMMENT_START,
+        details => ({...details, id: uuid4(), timestamp: Date.now()})
+    );
 
-
-type CreateCommentSuccess = SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>;
-export const createCommentSuccess: (comment: Comment) => CreateCommentSuccess =
-    comment => ({
-        type: CREATE_COMMENT_SUCCESS,
-        payload: comment,
-    });
+export const createCommentSuccess =
+    simpleFSACreator<CREATE_COMMENT_SUCCESS, Comment>(CREATE_COMMENT_SUCCESS);
 
 /* Edit comment */
 
 type CommentEditFields = Pick<Comment, "id"|"body">;
-type EditCommentStart = SimpleFSA<EDIT_COMMENT_START, CommentEditFields>;
-export const editCommentStart: (payload: CommentEditFields) => EditCommentStart =
-    payload => ({
-        type: EDIT_COMMENT_START,
-        payload,
-    });
+export const editCommentStart =
+    simpleFSACreator<EDIT_COMMENT_START, CommentEditFields>(EDIT_COMMENT_START);
 
-type EditCommentSuccess = SimpleFSA<EDIT_COMMENT_SUCCESS, Comment>;
-export const editCommentSuccess: (comment: Comment) => EditCommentSuccess =
-    comment => ({
-        type: EDIT_COMMENT_SUCCESS,
-        payload: comment,
-    });
+export const editCommentSuccess =
+    simpleFSACreator<EDIT_COMMENT_SUCCESS, Comment>(EDIT_COMMENT_SUCCESS);
 
 /* Delete comment */
 
 type CommentDeleteFields = Pick<Comment, "id">;
-type DeleteCommentStart = SimpleFSA<DELETE_COMMENT_START, CommentDeleteFields>;
-export const deleteCommentStart: (payload: Pick<Comment, "id">) => DeleteCommentStart =
-    payload => ({
-        type: DELETE_COMMENT_START,
-        payload,
-    });
+export const deleteCommentStart =
+    simpleFSACreator<DELETE_COMMENT_START, CommentDeleteFields>(DELETE_COMMENT_START);
 
-type DeleteCommentSuccess = SimpleFSA<DELETE_COMMENT_SUCCESS, Comment>;
-export const deleteCommentSuccess: (comment: Comment) => DeleteCommentSuccess =
-    comment => ({
-        type: DELETE_COMMENT_SUCCESS,
-        payload: comment,
-    });
-
+export const deleteCommentSuccess =
+    simpleFSACreator<DELETE_COMMENT_SUCCESS, Comment>(DELETE_COMMENT_SUCCESS);
 
 /* Vote on post or comment */
 
@@ -199,12 +154,8 @@ interface Vote {
     vote: "up" | "down";
 }
 
-type VoteStart = SimpleFSA<VOTE_START, Vote>;
-export const voteStart: (payload: Vote) => VoteStart =
-    payload => ({
-        type: VOTE_START,
-        payload,
-    });
+export const voteStart =
+    simpleFSACreator<VOTE_START, Vote>(VOTE_START);
 
 type VoteSuccess<T extends Post|Comment> = SimpleFSA<VOTE_SUCCESS, T>;
 function voteSuccess(payload: Post): VoteSuccess<Post>;
@@ -220,7 +171,11 @@ function voteSuccess(payload: any) {
 //  Asynchronous action types and action creators
 // -----------------------------------------------------------------------------
 
-export type AsyncAppAction<R extends ResultActionTypes> = thunk.ThunkAction<
+// Configure thunk creator factory
+const thunkCreator = makeThunkCreatorFactory<ActionTypes, ApplicationState>();
+
+type AsyncAppAction<R> = ActionTypedThunkAction<
+    ActionTypes,
     Promise<R>,
     ApplicationState,
     {}
@@ -228,54 +183,27 @@ export type AsyncAppAction<R extends ResultActionTypes> = thunk.ThunkAction<
 
 /* Posts */
 
-type LoadPostsAsync = AsyncAppAction<LoadPostsSuccess>;
-export const loadPostsAsync: () => LoadPostsAsync =
-    () => async (dispatch, getState) => {
-        dispatch(loadPostsStart());
-        const posts = await api.allPosts();
-        return dispatch(loadPostsSuccess(posts));
-    };
+export const loadPostsAsync =
+    () => thunkCreator(
+        loadPostsStart,
+        (arg: undefined) => api.allPosts(),
+        loadPostsSuccess
+    )({});
 
-type CreatePostAsync = AsyncAppAction<CreatePostSuccess>;
-export const createPostAsync: (
-    details: Pick<PostInitFields, "title"|"body"|"author"|"category">
-) => CreatePostAsync =
-    details => async (dispatch, getState) => {
+export const createPostAsync =
+    thunkCreator(createPostStart, api.publishPost, createPostSuccess);
 
-        const id = uuid4();
-        const timestamp = Date.now();
-        const postInit = {...details, id, timestamp};
+export const editPostAsync =
+    thunkCreator(editPostStart, api.editPost, editPostSuccess);
 
-        dispatch(createPostStart(postInit));
-        const post = await api.publishPost(postInit);
-        return dispatch(createPostSuccess(post));
-    };
-
-type EditPostAsync = AsyncAppAction<EditPostSuccess>;
-export const editPostAsync: (details: PostEditFields) => EditPostAsync =
-    details => async (dispatch, getState) => {
-
-        dispatch(editPostStart(details));
-        const post = await api.editPost(details);
-        return dispatch(editPostSuccess(post));
-
-    };
-
-type DeletePostAsync = AsyncAppAction<DeletePostSuccess>;
-export const deletePostAsync: (details: Pick<Post, "id">) => DeletePostAsync =
-    details => async (dispatch, getState) => {
-
-        dispatch(deletePostStart(details));
-        const post = await api.deletePost(details);
-        return dispatch(deletePostSuccess(post));
-
-    };
+export const deletePostAsync =
+    thunkCreator(deletePostStart, api.deletePost, deletePostSuccess);
 
 
 /* Comments */
 
-type LoadCommentsAsync = AsyncAppAction<LoadCommentsSuccess>;
-export const loadCommentsAsync: () => LoadCommentsAsync =
+type LoadCommentsThunk = AsyncAppAction<SimpleFSA<LOAD_COMMENTS_SUCCESS, Comment[]>>;
+export const loadCommentsAsync: () => LoadCommentsThunk =
     () => async (dispatch, getState) => {
         const posts = Object.values(getState().entities.posts.byId);
         dispatch(loadCommentsStart(posts));
@@ -291,52 +219,21 @@ export const loadCommentsAsync: () => LoadCommentsAsync =
         return dispatch(loadCommentsSuccess(comments));
     };
 
-type CreateCommentAsync = AsyncAppAction<CreateCommentSuccess>;
-export const createCommentAsync: (
-    details: Pick<CommentInitFields, "body"|"author"|"parentId">
-) => CreateCommentAsync =
-    details => async (dispatch, getState) => {
+export const createCommentAsync =
+    thunkCreator(createCommentStart,  api.publishComment, createCommentSuccess);
 
-        const id = uuid4();
-        const timestamp = Date.now();
-        const commentInit = {...details, id, timestamp};
+export const editCommentAsync =
+    thunkCreator(editCommentStart, api.editComment, editCommentSuccess);
 
-        dispatch(createCommentStart(commentInit));
-        const comment = await api.publishComment(commentInit);
-        return dispatch(createCommentSuccess(comment));
-    };
-
-type EditCommentAsync = AsyncAppAction<EditCommentSuccess>;
-export const editCommentAsync: (
-    details: Pick<CommentEditFields, "id"|"body">
-) => EditCommentAsync =
-    details => async (dispatch, getState) => {
-
-        dispatch(editCommentStart(details));
-        const comment = await api.editComment(details);
-        return dispatch(editCommentSuccess(comment));
-
-    };
-
-type DeleteCommentAsync = AsyncAppAction<DeleteCommentSuccess>;
-export const deleteCommentAsync: (details: Pick<Comment, "id">) => DeleteCommentAsync =
-    details => async (dispatch, getState) => {
-
-        dispatch(deleteCommentStart(details));
-        const comment = await api.deleteComment(details);
-        return dispatch(deleteCommentSuccess(comment));
-
-    };
+export const deleteCommentAsync =
+    thunkCreator(deleteCommentStart, api.deleteComment, deleteCommentSuccess);
 
 /* Both posts and comments */
 
 export function voteAsync(vote: Vote & { entityType: "post"}): AsyncAppAction<VoteSuccess<Post>>;
 export function voteAsync(vote: Vote & { entityType: "comment"}): AsyncAppAction<VoteSuccess<Comment>>;
 export function voteAsync(vote: any): any {
-    return async (
-        dispatch: redux.Dispatch<ApplicationState>,
-        getState: () => ApplicationState,
-    ) => {
+    return async (dispatch: ActionTypedDispatch<ActionTypes>) => {
 
         dispatch(voteStart(vote));
         const entity = await api.castVote(vote);
@@ -344,3 +241,4 @@ export function voteAsync(vote: any): any {
 
     };
 }
+

@@ -108,7 +108,7 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
 
             const res = await request(payload);
 
-            return resolved(res);
+            return dispatch(resolved(res));
         };
     }
 

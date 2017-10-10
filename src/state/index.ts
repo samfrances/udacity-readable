@@ -2,7 +2,7 @@ import * as redux from "redux";
 import thunk from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
 
-import { ActionTypesSynch } from "./actions";
+import { ActionTypes } from "./actions";
 import { ActionTypedStore } from "./helpers";
 
 import reducer, { ApplicationState, getInitialState } from "./reducers";
@@ -10,7 +10,7 @@ import reducer, { ApplicationState, getInitialState } from "./reducers";
 
 /* Store creation */
 
-export function storeFactory(): ActionTypedStore<ActionTypesSynch, ApplicationState> {
+export function storeFactory(): ActionTypedStore<ActionTypes, ApplicationState> {
 
     const initialState = getInitialState();
 
