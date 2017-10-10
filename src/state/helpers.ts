@@ -103,12 +103,14 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
      * @template D - input argument type to the thunk creator function
      * @template P - interface for the "pending" (or "start") action
      * @template R - interface for the "resolved" (or "success") action
+     * @template F - interface for the failure action
      */
-    function thunkCreatorFactory<D, P extends A, R extends A>(
+    function thunkCreatorFactory<D, P extends A, R extends A, F extends A>(
         pending: (details: D) => P,
         request: (payload: P["payload"]) => Promise<R["payload"]>,
         resolved: (payload: R["payload"]) => R,
-    ): ThunkCreator<D, A, Promise<R>, S, {}> {
+        rejected: (payload: P["payload"]) => F,
+    ): ThunkCreator<D, A, Promise<R|F>, S, {}> {
         return (details: D) => async dispatch => {
 
             const action = pending(details);
@@ -117,9 +119,15 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
 
             dispatch(action);
 
-            const res = await request(payload);
+            try {
+                const res = await request(payload);
+                return dispatch(resolved(res));
+            } catch (e) {
+                return dispatch(rejected(payload));
+            }
 
-            return dispatch(resolved(res));
+
+
         };
     }
 

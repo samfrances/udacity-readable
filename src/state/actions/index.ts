@@ -225,46 +225,59 @@ export const loadPostsAsync =
     () => thunkCreator(
         loadPostsStart,
         (arg: undefined) => api.allPosts(),
-        loadPostsSuccess
+        loadPostsSuccess,
+        loadPostsFailure,
     )({});
 
 export const createPostAsync =
-    thunkCreator(createPostStart, api.publishPost, createPostSuccess);
+    thunkCreator(createPostStart, api.publishPost, createPostSuccess, createPostFailure);
 
 export const editPostAsync =
-    thunkCreator(editPostStart, api.editPost, editPostSuccess);
+    thunkCreator(editPostStart, api.editPost, editPostSuccess, editPostFailure);
 
 export const deletePostAsync =
-    thunkCreator(deletePostStart, api.deletePost, deletePostSuccess);
+    thunkCreator(deletePostStart, api.deletePost, deletePostSuccess, deletePostFailure);
 
 
 /* Comments */
 
-type LoadCommentsThunk = AsyncAppAction<SimpleFSA<LOAD_COMMENTS_SUCCESS, Comment[]>>;
+type LoadCommentsThunk = AsyncAppAction<
+    | SimpleFSA<LOAD_COMMENTS_SUCCESS, Comment[]>
+    | SimpleFSA<LOAD_COMMENTS_FAILURE, Post[]>
+>;
 export const loadCommentsAsync: () => LoadCommentsThunk =
     () => async (dispatch, getState) => {
         const posts = Object.values(getState().entities.posts.byId);
         dispatch(loadCommentsStart(posts));
 
-        const comments: Comment[] = await (async () => {
-            const commentLists: Comment[][] = await Promise.all(
-                posts.map(post => api.commentsByPostId(post.id))
-            );
-            // flatten list of list of comments
-            return ([] as Comment[]).concat(...commentLists);
-        })();
+        try {
 
-        return dispatch(loadCommentsSuccess(comments));
+            const comments: Comment[] = await (async () => {
+                const commentLists: Comment[][] = await Promise.all(
+                    posts.map(post => api.commentsByPostId(post.id))
+                );
+                // flatten list of list of comments
+                return ([] as Comment[]).concat(...commentLists);
+            })();
+
+            return dispatch(loadCommentsSuccess(comments));
+
+        } catch (e) {
+
+            return dispatch(loadCommentsFailure(posts));
+
+        }
+
     };
 
 export const createCommentAsync =
-    thunkCreator(createCommentStart,  api.publishComment, createCommentSuccess);
+    thunkCreator(createCommentStart, api.publishComment, createCommentSuccess, createCommentFailure);
 
 export const editCommentAsync =
-    thunkCreator(editCommentStart, api.editComment, editCommentSuccess);
+    thunkCreator(editCommentStart, api.editComment, editCommentSuccess, editCommentFailure);
 
 export const deleteCommentAsync =
-    thunkCreator(deleteCommentStart, api.deleteComment, deleteCommentSuccess);
+    thunkCreator(deleteCommentStart, api.deleteComment, deleteCommentSuccess, deleteCommentFailure);
 
 /* Both posts and comments */
 
@@ -274,9 +287,12 @@ export function voteAsync(vote: any): any {
     return async (dispatch: ActionTypedDispatch<ActionTypes>) => {
 
         dispatch(voteStart(vote));
-        const entity = await api.castVote(vote);
-        return dispatch(voteSuccess(entity));
-
+        try {
+            const entity = await api.castVote(vote);
+            return dispatch(voteSuccess(entity));
+        } catch (e) {
+            return dispatch(voteFailure(vote));
+        }
     };
 }
 
