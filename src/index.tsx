@@ -66,11 +66,11 @@ const store = state.storeFactory();
     );
 
     await store.dispatch(
-        actions.deletePostAsync(parentId)
+        actions.deletePostAsync({id: parentId})
     );
 
     await store.dispatch(
-        actions.deleteCommentAsync(resCommentAction.payload.id)
+        actions.deleteCommentAsync({id: resCommentAction.payload.id})
     );
 
 })();

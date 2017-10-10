@@ -1,6 +1,6 @@
 import { EntityIndex, getEmptyIndex } from "./common";
 import { Post, isPost } from "../../interfaces";
-import { ActionTypesSynch } from "../actions";
+import { ActionTypes } from "../actions";
 import {
     LOAD_POSTS_SUCCESS, CREATE_POST_SUCCESS, EDIT_POST_SUCCESS, DELETE_POST_SUCCESS,
     VOTE_SUCCESS,
@@ -12,16 +12,16 @@ export const getInitialState = () => getEmptyIndex<Post>();
 
 export default function posts(
     state: PostsState = getInitialState(),
-    action: ActionTypesSynch,
+    action: ActionTypes,
 ): PostsState {
     switch (action.type) {
 
         case LOAD_POSTS_SUCCESS:
             return {
                 byId: Object.assign({},
-                    ...action.payload.posts.map( post => ({ [post.id]: post }) )
+                    ...action.payload.map( post => ({ [post.id]: post }) )
                 ),
-                allIds: action.payload.posts.map(post => post.id),
+                allIds: action.payload.map(post => post.id),
             };
 
         case CREATE_POST_SUCCESS:

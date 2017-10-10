@@ -1,6 +1,6 @@
 import { EntityIndex, getEmptyIndex } from "./common";
 import { Comment, Post, isPost } from "../../interfaces";
-import { ActionTypesSynch } from "../actions";
+import { ActionTypes } from "../actions";
 import {
     LOAD_COMMENTS_SUCCESS, CREATE_COMMENT_SUCCESS, EDIT_COMMENT_SUCCESS,
     DELETE_POST_SUCCESS, DELETE_COMMENT_SUCCESS, VOTE_SUCCESS,
@@ -12,7 +12,7 @@ export const getInitialState = () => getEmptyIndex<Comment>();
 
 export default function comments(
     state: CommentsState = getInitialState(),
-    action: ActionTypesSynch,
+    action: ActionTypes,
 ): CommentsState {
 
     switch (action.type) {
@@ -20,11 +20,11 @@ export default function comments(
         case LOAD_COMMENTS_SUCCESS:
             return {
                 byId: Object.assign({},
-                    ...action.payload.comments.map(
+                    ...action.payload.map(
                         comment => ({ [comment.id]: comment })
                     )
                 ),
-                allIds: action.payload.comments.map(post => post.id),
+                allIds: action.payload.map(post => post.id),
             };
 
         case CREATE_COMMENT_SUCCESS:
