@@ -26,6 +26,7 @@ import {
     makeThunkCreatorFactory,
     ActionTypedThunkAction,
     ActionTypedDispatch,
+    withRequestMeta,
 } from "../helpers";
 
 /* Constants */
@@ -247,8 +248,16 @@ type LoadCommentsThunk = AsyncAppAction<
 >;
 export const loadCommentsAsync: () => LoadCommentsThunk =
     () => async (dispatch, getState) => {
+
+        const requestId = uuid4();
+
         const posts = Object.values(getState().entities.posts.byId);
-        dispatch(loadCommentsStart(posts));
+        dispatch(
+            withRequestMeta(
+                loadCommentsStart(posts),
+                requestId
+            )
+        );
 
         try {
 
@@ -260,11 +269,21 @@ export const loadCommentsAsync: () => LoadCommentsThunk =
                 return ([] as Comment[]).concat(...commentLists);
             })();
 
-            return dispatch(loadCommentsSuccess(comments));
+            return dispatch(
+                withRequestMeta(
+                    loadCommentsSuccess(comments),
+                    requestId,
+                )
+            );
 
         } catch (e) {
 
-            return dispatch(loadCommentsFailure(posts));
+            return dispatch(
+                withRequestMeta(
+                    loadCommentsFailure(posts),
+                    requestId
+                )
+            );
 
         }
 
@@ -286,12 +305,30 @@ export function voteAsync(vote: Vote & { entityType: "comment"}): AsyncAppAction
 export function voteAsync(vote: any): any {
     return async (dispatch: ActionTypedDispatch<ActionTypes>) => {
 
-        dispatch(voteStart(vote));
+        const requestId = uuid4();
+
+        dispatch(
+            withRequestMeta(
+                voteStart(vote),
+                requestId,
+            )
+        );
+
         try {
             const entity = await api.castVote(vote);
-            return dispatch(voteSuccess(entity));
+            return dispatch(
+                withRequestMeta(
+                    voteSuccess(entity),
+                    requestId,
+                )
+            );
         } catch (e) {
-            return dispatch(voteFailure(vote));
+            return dispatch(
+                withRequestMeta(
+                    voteFailure(vote),
+                    requestId,
+                )
+            );
         }
     };
 }

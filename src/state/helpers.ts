@@ -1,4 +1,5 @@
 import * as redux from "redux";
+import * as uuid4 from "uuid/v4";
 
 // -----------------------------------------------------------------------------
 //  Alternative interfaces for stronger typing of actions in the redux store
@@ -74,6 +75,23 @@ export function simpleErrorFSACreator<T, P>(
 //  Async action ("thunk") helpers
 // -----------------------------------------------------------------------------
 
+interface RequestAction {
+    meta: {
+        request: {
+            id: string;
+        };
+    };
+}
+
+export function withRequestMeta<A extends SimpleFSA<T, P>, T, P>(
+    action: A, id: string
+): A & RequestAction {
+
+    const meta: RequestAction["meta"] = { request: { id }};
+
+    return Object.assign(action, { meta });
+
+}
 
 
 /**
@@ -113,7 +131,12 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
     ): ThunkCreator<D, A, Promise<R|F>, S, {}> {
         return (details: D) => async dispatch => {
 
-            const action = pending(details);
+            const requestId = uuid4();
+
+            const action = withRequestMeta(
+                pending(details),
+                requestId,
+            );
 
             const payload = action.payload;
 
@@ -121,12 +144,14 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
 
             try {
                 const res = await request(payload);
-                return dispatch(resolved(res));
+                return dispatch(
+                    withRequestMeta(resolved(res), requestId)
+                );
             } catch (e) {
-                return dispatch(rejected(payload));
+                return dispatch(
+                    withRequestMeta(rejected(payload), requestId)
+                );
             }
-
-
 
         };
     }
