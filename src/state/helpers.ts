@@ -79,15 +79,18 @@ export interface RequestAction {
     meta: {
         request: {
             id: string;
+            optimistic?: boolean;
         };
     };
 }
 
 export function withRequestMeta<A extends SimpleFSA<T, P>, T, P>(
-    action: A, id: string
+    action: A,
+    id: string,
+    optimistic?: boolean,
 ): A & RequestAction {
 
-    const meta: RequestAction["meta"] = { request: { id }};
+    const meta: RequestAction["meta"] = { request: { id, optimistic }};
 
     return Object.assign(action, { meta });
 
@@ -132,6 +135,7 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
         request: (payload: P["payload"]) => Promise<R["payload"]>,
         resolved: (payload: R["payload"]) => R,
         rejected: (payload: P["payload"]) => F,
+        optimistic = true
     ): ThunkCreator<D, A, Promise<R|F>, S, {}> {
         return (details: D) => async dispatch => {
 
@@ -140,6 +144,7 @@ export function makeThunkCreatorFactory<A extends SimpleFSA<string, any>, S>() {
             const action = withRequestMeta(
                 pending(details),
                 requestId,
+                optimistic
             );
 
             const payload = action.payload;

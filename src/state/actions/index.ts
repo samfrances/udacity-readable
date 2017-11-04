@@ -228,6 +228,7 @@ export const loadPostsAsync =
         (arg: undefined) => api.allPosts(),
         loadPostsSuccess,
         loadPostsFailure,
+        false
     )({});
 
 export const createPostAsync =
@@ -255,7 +256,8 @@ export const loadCommentsAsync: () => LoadCommentsThunk =
         dispatch(
             withRequestMeta(
                 loadCommentsStart(posts),
-                requestId
+                requestId,
+                false
             )
         );
 
