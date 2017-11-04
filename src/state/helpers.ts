@@ -75,7 +75,7 @@ export function simpleErrorFSACreator<T, P>(
 //  Async action ("thunk") helpers
 // -----------------------------------------------------------------------------
 
-interface RequestAction {
+export interface RequestAction {
     meta: {
         request: {
             id: string;
@@ -91,6 +91,10 @@ export function withRequestMeta<A extends SimpleFSA<T, P>, T, P>(
 
     return Object.assign(action, { meta });
 
+}
+
+export function hasRequestMeta<A>(action: A): action is A & RequestAction {
+    return Object.keys(action).includes("meta");
 }
 
 
