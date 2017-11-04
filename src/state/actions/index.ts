@@ -40,22 +40,22 @@ export type ActionTypes =
     | SimpleErrorFSA<LOAD_COMMENTS_FAILURE, Post[]>
     | SimpleFSA<CREATE_POST_START, PostInitFields>
     | SimpleFSA<CREATE_POST_SUCCESS, Post>
-    | SimpleErrorFSA<CREATE_POST_FAILURE, Post>
+    | SimpleErrorFSA<CREATE_POST_FAILURE, PostInitFields>
     | SimpleFSA<CREATE_COMMENT_START, CommentInitFields>
     | SimpleFSA<CREATE_COMMENT_SUCCESS, Comment>
-    | SimpleErrorFSA<CREATE_COMMENT_FAILURE, Comment>
+    | SimpleErrorFSA<CREATE_COMMENT_FAILURE, CommentInitFields>
     | SimpleFSA<EDIT_POST_START, PostEditFields>
     | SimpleFSA<EDIT_POST_SUCCESS, Post>
-    | SimpleErrorFSA<EDIT_POST_FAILURE, Post>
+    | SimpleErrorFSA<EDIT_POST_FAILURE, PostEditFields>
     | SimpleFSA<EDIT_COMMENT_START, CommentEditFields>
     | SimpleFSA<EDIT_COMMENT_SUCCESS, Comment>
-    | SimpleErrorFSA<EDIT_COMMENT_FAILURE, Comment>
+    | SimpleErrorFSA<EDIT_COMMENT_FAILURE, CommentEditFields>
     | SimpleFSA<DELETE_POST_START, PostDeleteFields>
     | SimpleFSA<DELETE_POST_SUCCESS, Post>
-    | SimpleErrorFSA<DELETE_POST_FAILURE, Post>
+    | SimpleErrorFSA<DELETE_POST_FAILURE, PostDeleteFields>
     | SimpleFSA<DELETE_COMMENT_START, CommentDeleteFields>
     | SimpleFSA<DELETE_COMMENT_SUCCESS, Comment>
-    | SimpleErrorFSA<DELETE_COMMENT_FAILURE, Comment>
+    | SimpleErrorFSA<DELETE_COMMENT_FAILURE, CommentDeleteFields>
     | SimpleFSA<VOTE_START, Vote>
     | VoteSuccess<Post>
     | VoteSuccess<Comment>
@@ -94,7 +94,7 @@ export const createPostSuccess =
     simpleFSACreator<CREATE_POST_SUCCESS, Post>(CREATE_POST_SUCCESS);
 
 export const createPostFailure =
-    simpleErrorFSACreator<CREATE_POST_FAILURE, Post>(CREATE_POST_FAILURE);
+    simpleErrorFSACreator<CREATE_POST_FAILURE, PostInitFields>(CREATE_POST_FAILURE);
 
 /* Edit post */
 
@@ -106,7 +106,7 @@ export const editPostSuccess =
     simpleFSACreator<EDIT_POST_START, Post>(EDIT_POST_START);
 
 export const editPostFailure =
-    simpleErrorFSACreator<EDIT_POST_FAILURE, Post>(EDIT_POST_FAILURE);
+    simpleErrorFSACreator<EDIT_POST_FAILURE, PostEditFields>(EDIT_POST_FAILURE);
 
 /* Delete post */
 
@@ -118,7 +118,7 @@ export const deletePostSuccess =
     simpleFSACreator<DELETE_POST_SUCCESS, Post>(DELETE_POST_SUCCESS);
 
 export const deletePostFailure =
-    simpleErrorFSACreator<DELETE_POST_FAILURE, Post>(DELETE_POST_FAILURE);
+    simpleErrorFSACreator<DELETE_POST_FAILURE, PostDeleteFields>(DELETE_POST_FAILURE);
 
 /* Loading comments */
 
@@ -148,7 +148,7 @@ export const createCommentSuccess =
     simpleFSACreator<CREATE_COMMENT_SUCCESS, Comment>(CREATE_COMMENT_SUCCESS);
 
 export const createCommentFailure =
-    simpleErrorFSACreator<CREATE_COMMENT_FAILURE, Comment>(CREATE_COMMENT_FAILURE);
+    simpleErrorFSACreator<CREATE_COMMENT_FAILURE, CommentInitFields>(CREATE_COMMENT_FAILURE);
 
 /* Edit comment */
 
@@ -160,7 +160,7 @@ export const editCommentSuccess =
     simpleFSACreator<EDIT_COMMENT_SUCCESS, Comment>(EDIT_COMMENT_SUCCESS);
 
 export const editCommentFailure =
-    simpleErrorFSACreator<EDIT_COMMENT_FAILURE, Comment>(EDIT_COMMENT_FAILURE);
+    simpleErrorFSACreator<EDIT_COMMENT_FAILURE, CommentEditFields>(EDIT_COMMENT_FAILURE);
 
 /* Delete comment */
 
@@ -172,7 +172,7 @@ export const deleteCommentSuccess =
     simpleFSACreator<DELETE_COMMENT_SUCCESS, Comment>(DELETE_COMMENT_SUCCESS);
 
 export const deleteCommentFailure =
-    simpleErrorFSACreator<DELETE_COMMENT_FAILURE, Comment>(DELETE_COMMENT_FAILURE);
+    simpleErrorFSACreator<DELETE_COMMENT_FAILURE, CommentDeleteFields>(DELETE_COMMENT_FAILURE);
 
 /* Vote on post or comment */
 
